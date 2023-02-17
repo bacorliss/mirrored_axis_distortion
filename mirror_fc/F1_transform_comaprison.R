@@ -20,6 +20,13 @@ fc_test$mfc_2_fc <- mirror_fc(fc_test$fc_2_mfc, forward = FALSE)
 library(ggplot2)
 library(cowplot)
 
+
+# Linear visualization
+
+
+
+
+
 base_dir = "mirror_fc"
 fig_num = "2" 
 fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
