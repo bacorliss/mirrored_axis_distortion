@@ -2,7 +2,7 @@
 
 library(ggplot2)
 library(cowplot)
-
+library(scales)
 source("R/mirrored_axis_distortion.R")
 
 # Linear visualization
@@ -16,7 +16,7 @@ dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
 # FC = Y/X
 
 # Define Conversion table between fc<1 and fc>=1
-y_rats <- c(2, 3, 4, 5, 6, 7)
+y_rats <- c(1.5, 2, 3, 4, 5, 6, 7, 8)
 df_fc = data.frame(nfc = 1/rev(y_rats), pfc = y_rats)
 
 # Test dataframe for fc conversion functions
@@ -24,17 +24,50 @@ fc_test <- data.frame(ind = seq(1,2*nrow(df_fc)+1), fc = c(df_fc$nfc, 1, df_fc$p
 fc_test$log2fc <- log2(fc_test$fc)
 fc_test$mfc <- fc_to_mfc(fc_test$fc)
 
+##  Linear Plot
+g0 <- ggplot( data = fc_test, aes(y = fc, x = fc)) + 
+  geom_point(size = 1) + 
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 1) +
+  # scale_y_continuous(trans = "log2") +
+  ylab("FC") + xlab("FC") +
+  theme_minimal()
+g0
+save_plot(paste(fig_path, '/', "B_fc_log2.jpg", sep = ""),
+          g1, dpi = 600, base_height = ggsize[1], 
+          base_width = ggsize[2])  
 
-ggplot( data = fc_test, aes(y = log2fc, x = fc)) + 
-  geom_point() + 
+
+## Log plot of fold change
+g1 <- ggplot( data = fc_test, aes(y = fc, x = fc)) + 
+  geom_point(size = 1) + 
+  geom_hline(yintercept = 1) +
+  geom_vline(xintercept = 1) +
+  scale_y_continuous(trans='log2',
+                     breaks = trans_breaks("log2", function(x) 2^x),
+                     labels = trans_format("log2", math_format(2^.x))) +
+  ylab("FC") + xlab("FC") +
+  theme_minimal()
+g1
+save_plot(paste(fig_path, '/', "B_fc_log2.jpg", sep = ""),
+          g1, dpi = 600, base_height = ggsize[1], 
+          base_width = ggsize[2])
+
+# log of fold change
+g2 <- ggplot( data = fc_test, aes(y = log2fc, x = fc)) + 
+  geom_point(size = 1) + 
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 1) +
   # scale_y_continuous(trans = "log2") +
   ylab("Log2 FC") + xlab("FC") +
   theme_minimal()
+g2
+save_plot(paste(fig_path, '/', "B_log2_fc.jpg", sep = ""),
+          g2, dpi = 600, base_height = ggsize[1], 
+          base_width = ggsize[2])
 
 
-
+# Mirrored Contracted Fold Change
 ggplot( data = fc_test, aes(y = fc, x = fc)) + 
   geom_point() + 
   geom_hline(yintercept = 1) +
@@ -43,7 +76,7 @@ ggplot( data = fc_test, aes(y = fc, x = fc)) +
   theme_minimal()
 
 
-
+# Mirror fold change plot
 ggplot( data = fc_test, aes(y = mfc, x = fc)) + 
   geom_point() + 
   geom_hline(yintercept = 0) +
@@ -51,6 +84,9 @@ ggplot( data = fc_test, aes(y = mfc, x = fc)) +
   ylab("MFC") + xlab("FC") +
   theme_minimal()
 
+
+
+g5 <- gg_revaxis_mfc(g1,'y',num_format = "power") + xlab("MAD-FC") 
 
 
 
