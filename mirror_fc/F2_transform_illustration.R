@@ -1,7 +1,16 @@
 
 
 
+
+
+library(ggplot2)
+library(cowplot)
 source("R/mirrored_axis_distortion.R")
+
+base_dir = "mirror_fc"
+fig_num = "2" 
+fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
+dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
 
 
 # Fold change is not a measure of change, it includes how much you have to start with
@@ -17,13 +26,6 @@ fc_test$fc_2_mfc <- mirror_fc(fc_test$fc)
 fc_test$mfc_2_fc <- mirror_fc(fc_test$fc_2_mfc, forward = FALSE)
 
 
-library(ggplot2)
-library(cowplot)
-
-base_dir = "mirror_fc"
-fig_num = "2" 
-fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
-dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
 
 
 # Define Conversion table between fc<1 and fc>=1
