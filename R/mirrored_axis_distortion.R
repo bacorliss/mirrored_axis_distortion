@@ -6,22 +6,22 @@ library(stringr)
 
 
 
-fc_to_mfc <- function(x) {x[x < 1]<- -1/x[x < 1]; return(x)}
-mfc_to_fc <- function(x) {x[x < 0]<- -1/x[x < 0]; return(x)}
+fc_to_mfc <- function(x) {x[x < 1 & !is.na(x)]<- -1/x[x < 1 & !is.na(x)]; return(x)}
+mfc_to_fc <- function(x) {x[x < 0 & !is.na(x)]<- -1/x[x < 0 & !is.na(x)]; return(x)}
 
 
 contract1 <- function(x) {
   x1<-x
-  x1[x <= -1] <- x1[x <= -1] + 1
-  x1[x >=  1] <- x1[x >=  1] - 1
-  x1[(x >  -1) & ((x <  1))] <- NaN
+  x1[x <= -1 & !is.na(x)] <- x1[x <= -1 & !is.na(x)] + 1
+  x1[x >=  1 & !is.na(x)] <- x1[x >=  1 & !is.na(x)] - 1
+  x1[(x >  -1 & !is.na(x)) & (x <  1  & !is.na(x))] <- NaN
   return(x1)
 }
 
 rev_contract1 <- function(x) {
   x1<-x
-  x1[x < 0] <- x1[x < 0] - 1
-  x1[x >= 0] <- x1[x >= 0] + 1
+  x1[x < 0 & !is.na(x)] <- x1[x < 0 & !is.na(x)] - 1
+  x1[x >= 0 & !is.na(x)] <- x1[x >= 0 & !is.na(x)] + 1
   return(x1)
 }
 
