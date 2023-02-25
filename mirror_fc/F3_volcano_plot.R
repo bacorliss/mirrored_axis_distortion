@@ -66,7 +66,8 @@ p3 <- p2 + scale_color_manual(values=c("blue", "black", "red"))
 ggplot(data=de, aes(x=log2FoldChange, y=-log10(pvalue), col=diffexpressed, label=delabel)) + 
   geom_point() + 
   theme_minimal() +
-  geom_text()
+  geom_text() +
+  
 
 
 
