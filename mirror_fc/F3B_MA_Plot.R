@@ -111,11 +111,15 @@ g3 <- ggplot(data = df_gene, aes(x = baseMean, y = mcFoldChange)) +
   geom_point(aes(col=diffexpressed), size = 0.4, alpha = 0.6, shape = 16) +
   scale_x_log10() +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
+  scale_y_continuous(breaks = c(-9, 0, 9, 19)) +
   theme_classic(base_size = 8) + 
   ylab("MAD-FC") +
   xlab("Normalized Mean") +
   theme(legend.position = "none")     
 g3
+g3 <- gg_revaxis_mfc(g3,'y', num_format = "fraction")
+g3
+
 save_plot(paste(fig_path, '/', "C_ma_mad-fc_plot.png", sep = ""),
           g3, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])

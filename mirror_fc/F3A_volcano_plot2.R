@@ -71,12 +71,13 @@ df_gene$mcFoldChange <- contract1(fc_to_mfc(df_gene$FoldChange))
 
 # Log2 Plot
 g1 <- ggplot(data=df_gene, aes(x=log2FoldChange, y=-log10(pvalue))) +
+  geom_vline(xintercept = 0, color = "grey") +
   geom_point(aes(col=diffexpressed), size = 0.5, alpha = 0.6, shape = 16) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
   theme_classic(base_size = 8) + 
   ylab(expression(-log[10]~(p-value))) +
-  xlab(expression(log[2]~(Fold~Change))) +
+  xlab(expression(log[2]~(FC))) +
   theme(legend.position = "none")     
 g1
 save_plot(paste(fig_path, '/', "A_volcano_log2.png", sep = ""),
@@ -86,12 +87,13 @@ save_plot(paste(fig_path, '/', "A_volcano_log2.png", sep = ""),
 
 # Fold Change Linear Plot
 g2 <- ggplot(data=df_gene, aes(x=FoldChange, y=-log10(pvalue))) +
+  geom_vline(xintercept = 1, color = "grey") +
   geom_point(aes(col=diffexpressed), size = 0.5, alpha = 0.6, shape = 16) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
   theme_classic(base_size = 8)   +
   ylab(expression(-log[10]~(p-value))) +
-  xlab("Fold Change") +
+  xlab("FC") +
   theme(legend.position = "none")     
 g2
 save_plot(paste(fig_path, '/', "B_volcano_FC.png", sep = ""),
@@ -99,14 +101,15 @@ save_plot(paste(fig_path, '/', "B_volcano_FC.png", sep = ""),
           base_width = ggsize[2])  
 
 
-# Fold Change Linear Plot
+# MAD Fold Change Linear Plot
 g3 <- ggplot(data=df_gene, aes(x=mcFoldChange, y=-log10(pvalue))) +
+  geom_vline(xintercept = 0, color = "grey") +
   geom_point(aes(col=diffexpressed), size = 0.5, alpha = 0.6, shape = 16) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
   theme_classic(base_size = 8) +
   ylab(expression(-log[10]~(p-value))) +
-  xlab("MAD Fold Change") +
+  xlab("MAD-FC") +
   theme(legend.position = "none") +
   scale_x_continuous(breaks=c(c(-9, - 4, 0, seq(4,30,5))), expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0))

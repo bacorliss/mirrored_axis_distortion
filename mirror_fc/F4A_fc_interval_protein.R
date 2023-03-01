@@ -7,10 +7,10 @@ library(cowplot)
 source("R/mirrored_axis_distortion.R")
 
 base_dir = "mirror_fc"
-fig_num = "3" 
+fig_num = "4" 
 fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
 dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
-ggsize <- c(3,2.1)
+ggsize <- c(3,2.25)
 
 
 
@@ -31,8 +31,9 @@ df$mfc_lo <- contract1(fc_to_mfc(df$lo))
 
 # Log2 Plot
 g1 <- ggplot(data = df,aes(x=label, y = log2_mid, color = color)) +
-  geom_hline(yintercept = log2(c(1.2, 0.8)), alpha = 0.25) +
-  geom_errorbar(aes(ymax = log2_hi, ymin = log2_lo), size = .8, width = .8, 
+  geom_hline(yintercept = 0, color = "grey") +
+  geom_hline(yintercept = c(-.26, 0.26), color = "grey", linetype = "dashed") +
+  geom_errorbar(aes(ymax = log2_hi, ymin = log2_lo), linewidth = .8, width = .8, 
                 position=position_dodge(width=0.4), alpha =.6) + 
   geom_point(size = .8,position=position_dodge(width=0.4),alpha = 1) +
   theme_classic(base_size = 8) + 
@@ -52,8 +53,9 @@ save_plot(paste(fig_path, '/', "A_gene-int_log2.png", sep = ""),
 
 # FC Plot
 g2 <- ggplot(data = df,aes(x=label, y = mid, color = color)) +
-  geom_hline(yintercept = c(1.2, 0.8), alpha = 0.25) +
-  geom_errorbar(aes(ymax = hi, ymin = lo), size = .8, width = .8, 
+  geom_hline(yintercept = 1, color = "grey") +
+  geom_hline(yintercept = c(1.2, 0.8), color = "grey", linetype = "dashed") +
+  geom_errorbar(aes(ymax = hi, ymin = lo), linewidth = .8, width = .8, 
                 position=position_dodge(width=0.4), alpha =.6) + 
   geom_point(size = .8,position=position_dodge(width=0.4),alpha = 1) +
   theme_classic(base_size = 8) + 
@@ -75,8 +77,9 @@ save_plot(paste(fig_path, '/', "B_gene-int_fc.png", sep = ""),
 
 # MAD FC Plot
 g3 <- ggplot(data = df,aes(x=label, y = mfc_mid, color = color)) +
-  geom_hline(yintercept = c(.2, -.2), alpha = 0.25) +
-  geom_errorbar(aes(ymax = mfc_hi, ymin = mfc_lo), size = .8, width = .8, 
+  geom_hline(yintercept = 0, color = "grey") +
+  geom_hline(yintercept = c(.2, -0.2), color = "grey", linetype = "dashed") +
+  geom_errorbar(aes(ymax = mfc_hi, ymin = mfc_lo), linewidth = .8, width = .8, 
                 position=position_dodge(width=0.4), alpha =.6) + 
   geom_point(size = .8,position=position_dodge(width=0.4),alpha = 1) +
   theme_classic(base_size = 8) + 
@@ -90,8 +93,11 @@ g3 <- ggplot(data = df,aes(x=label, y = mfc_mid, color = color)) +
   scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c(18, 15, 17)) +
   scale_y_continuous(expand = c(0,0)) +
   coord_cartesian(ylim = c(-9,3)) +
-  xlab("") + ylab("MAD FC From Vehicle Tx")
+  xlab("") + ylab("MAD-FC From Vehicle Tx")
 g3
+g3 <- gg_revaxis_mfc(g3,'y', num_format = "fraction")
+g3
+
 save_plot(paste(fig_path, '/', "c_gene-int_mad-fc.png", sep = ""),
           g3, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])  

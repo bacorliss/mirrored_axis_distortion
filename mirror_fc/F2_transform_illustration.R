@@ -11,7 +11,7 @@ base_dir = "mirror_fc"
 fig_num = "2" 
 fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
 dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
-
+ggsize = c(2,2)
 
 # Fold change is not a measure of change, it includes how much you have to start with
 # FC = Y/X
@@ -46,14 +46,15 @@ manual_colors = c("#d95f02", "#1b9e77", "#7570b3")
 
 
 # fc_test$mfc_2_fc <- mirror_fc(fc_test$fc_2_mfc, forward = FALSE)
-ggsize = c(2,2)
+
 
 g1 <- ggplot(data = fc_test, aes(y = ind, x = fc, color = Direction)) + 
-  geom_vline(xintercept = 1) + scale_y_reverse() +
+  geom_vline(xintercept = 1) +
   geom_point(size=1) + theme_minimal(base_size = 8) + ylab("Row") + xlab("FC") + 
-  theme(legend.position="none", panel.grid.minor.x = element_blank()) +
-  scale_y_continuous(labels = as.character(fc_test$ind), breaks = fc_test$ind) +
-  scale_color_manual(values=manual_colors)
+  theme(legend.position="none", panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank()) +
+  scale_y_reverse(labels = as.character(fc_test$ind), breaks = fc_test$ind) +
+  scale_color_manual(values=manual_colors) 
 g1
 save_plot(paste(fig_path, '/', "A_fc.jpg", sep = ""),
           g1, dpi = 600, base_height = ggsize[1], 
@@ -62,24 +63,27 @@ save_plot(paste(fig_path, '/', "A_fc.jpg", sep = ""),
 
 g2 <- ggplot(data = fc_test, aes(y = ind, x = mfc, color = Direction)) + 
   annotate("rect", ymax = Inf, ymin = -Inf, xmin = -1, xmax = 1, alpha = 0.25) +
-  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("Row") + xlab("MFC") + 
-  theme(legend.position="none", panel.grid.minor.x = element_blank()) + scale_y_reverse() +
-  scale_y_continuous(labels = as.character(fc_test$ind), breaks = fc_test$ind) +
-  scale_color_manual(values=manual_colors) 
+  geom_vline(xintercept = 0) +
+  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("Row") + xlab("M-FC") + 
+  theme(legend.position="none", panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank()) +
+  scale_y_reverse(labels = as.character(fc_test$ind), breaks = fc_test$ind) +
+  scale_color_manual(values=manual_colors)
 g2
-save_plot(paste(fig_path, '/', "B_mfc.jpg", sep = ""),
+save_plot(paste(fig_path, '/', "B_m-fc.jpg", sep = ""),
           g2, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])
 
 
 g3 <- ggplot(data = fc_test, aes(y = ind, x = contract_mfc, color = Direction)) + 
   geom_vline(xintercept = 0) +
-  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("Row") + xlab("Con-MFC") + 
-  theme(legend.position="none", panel.grid.minor.x = element_blank()) + scale_y_reverse() +
-  scale_y_continuous(labels = as.character(fc_test$ind), breaks = fc_test$ind)  +
+  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("Row") + xlab("MCon-FC") + 
+  theme(legend.position="none", panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank()) +
+  scale_y_reverse(labels = as.character(fc_test$ind), breaks = fc_test$ind) +
   scale_color_manual(values=manual_colors)
 g3
-save_plot(paste(fig_path, '/', "C_con-mfc.jpg", sep = ""),
+save_plot(paste(fig_path, '/', "C_mcon-fc.jpg", sep = ""),
           g3, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])
 
