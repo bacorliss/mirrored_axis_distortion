@@ -4,12 +4,11 @@
 
 library(stringr)
 
-
-
 fc_to_mfc <- function(x) {x[x < 1 & !is.na(x)]<- -1/x[x < 1 & !is.na(x)]; return(x)}
 mfc_to_fc <- function(x) {x[x < 0 & !is.na(x)]<- -1/x[x < 0 & !is.na(x)]; return(x)}
 
 
+# Contract and Expand datapoints by 1 units from origin
 contract1 <- function(x) {
   x1<-x
   x1[x <= -1 & !is.na(x)] <- x1[x <= -1 & !is.na(x)] + 1
@@ -17,7 +16,6 @@ contract1 <- function(x) {
   x1[(x >  -1 & !is.na(x)) & (x <  1  & !is.na(x))] <- NaN
   return(x1)
 }
-
 rev_contract1 <- function(x) {
   x1<-x
   x1[x < 0 & !is.na(x)] <- x1[x < 0 & !is.na(x)] - 1
@@ -103,6 +101,8 @@ mirror_fc <- function(x, forward = TRUE) {
 
 
 gg_revaxis_mfc<- function(gg, ax = "y", num_format = "decimal") {
+  # browser()
+  
   xlabs <- ggplot_build(gg)$layout$panel_params[[1]][[ax]]$get_labels()
   # Remove NAs (sometimes there are hidden empty ticks)
   xlabs <- xlabs[!is.na(xlabs)]
@@ -112,8 +112,13 @@ gg_revaxis_mfc<- function(gg, ax = "y", num_format = "decimal") {
   x_sigdigs = unname(sapply(xlabs, function(x) length(str_replace(x, "^[-0.]*",""))))
   
   new_xlabs_num <- rev_contract1(as.numeric(xlabs))
+  new_xlabs_num <- as.numeric(xlabs)
+  new_xlabs_num[new_xlabs_num==0] <- 1
   
-  # Convert axis labels to friendly output
+  new_xbreaks <- contract1(x_breaks)
+  new_xbreaks[is.nan(new_xbreaks)]<-0
+  
+  # Convert axis labels to specified format output
   if (num_format == "decimal") {
     new_xlabs_num[new_xlabs_num<1] <-  -1/new_xlabs_num[new_xlabs_num<1] 
     new_x_sigdigs = unname(sapply(as.character(new_xlabs_num), function(x) length(str_replace(x, "^[-0.]*",""))))
@@ -127,24 +132,19 @@ gg_revaxis_mfc<- function(gg, ax = "y", num_format = "decimal") {
     new_xlabs <- as.character(new_xlabs_num)
     new_xlabs[new_xlabs_num<1] <- paste(as.character(abs(new_xlabs_num[new_xlabs_num<1])),"^-1",sep="")
     
-    
-  
-    
-    
+
   } else if (num_format == "fraction") {
     new_xlabs <- as.character(new_xlabs_num)
     new_xlabs[new_xlabs_num<1] <- paste("1/", as.character(abs(new_xlabs_num[new_xlabs_num<1])),sep="")
     
-  } else {
-    stop("num_format only supports: decimal, power, or fraction")
-  }
+  } else { stop("num_format only supports: decimal, power, or fraction") }
   
  
   
   if (ax=='x') {
-    gg2<- gg + scale_x_continuous(labels = parse(text = new_xlabs), breaks = x_breaks)
+    gg2<- gg + scale_x_continuous(labels = parse(text = new_xlabs), breaks = new_xbreaks)
   } else if (ax=='y'){
-    gg2<- gg + scale_y_continuous(labels = parse(text = new_xlabs), breaks = x_breaks)
+    gg2<- gg + scale_y_continuous(labels = parse(text = new_xlabs), breaks = new_xbreaks)
   } else (stop("gg_revaxis_mfc:only x and y axis supported for input argument"))
   
   

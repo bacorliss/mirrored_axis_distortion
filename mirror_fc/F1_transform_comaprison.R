@@ -10,7 +10,6 @@ base_dir = "mirror_fc"
 fig_num = "1" 
 fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
 dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
-
 ggsize <- c(2.5,2.5)
   
 # Fold change is not a measure of change, it includes how much you have to start with

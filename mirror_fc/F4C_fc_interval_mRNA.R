@@ -86,7 +86,6 @@ g3 <- ggplot(data = df,aes(x=x, y = mfc_mid)) +
 g3
 g3 <- gg_revaxis_mfc(g3,'y', num_format = "fraction")
 g3
-
 save_plot(paste(fig_path, '/', "c_gene-int_mad-fc.png", sep = ""),
           g3, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])  
