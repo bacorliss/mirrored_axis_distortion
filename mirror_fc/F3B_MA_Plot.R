@@ -97,7 +97,7 @@ g2 <- ggplot(data = df_gene, aes(x = baseMean, y = FoldChange)) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   theme_classic(base_size = 8) + 
   ylab("FC") +
-  xlab("Normalized Mean") +
+  xlab("Normalized Mean Count") +
   theme(legend.position = "none")     
 g2
 save_plot(paste(fig_path, '/', "B_ma_fc_plot.png", sep = ""),
@@ -114,7 +114,7 @@ g3 <- ggplot(data = df_gene, aes(x = baseMean, y = mcFoldChange)) +
   scale_y_continuous(breaks = c(-9, 0, 9, 19)) +
   theme_classic(base_size = 8) + 
   ylab("MAD-FC") +
-  xlab("Normalized Mean") +
+  xlab("Normalized Mean Count") +
   theme(legend.position = "none")     
 g3
 g3 <- gg_revaxis_mfc(g3,'y', num_format = "fraction")
