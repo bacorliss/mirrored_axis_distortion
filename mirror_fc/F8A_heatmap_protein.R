@@ -14,8 +14,19 @@ library(ggplot2)
 library(DEP)
 source("R/mirrored_axis_distortion.R")
 
+
 # The data is provided with the package 
 data <- UbiLength
+# Linear visualization
+base_dir = "mirror_fc"
+fig_num = "7" 
+fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
+dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
+ggsize <- c(2.25,5)
+
+
+
+
 experimental_design <- UbiLength_ExpDesign
 
 # The wrapper function performs the full analysis
@@ -65,29 +76,70 @@ levels(df_mad$Sample) <- c("Ubi1", "Ubi4", "ubi6")
 
 
 
+ggsize <- c(5,2.5)
+
+
 saturate <- function(df, colname,lo, hi) {
   df[[colname]][df[[colname]]<lo] <- lo
   df[[colname]][df[[colname]]>hi] <- hi
   return(df)
 }
 
-ggplot(data = saturate(df_log2,'y',-4,4), aes(x=Sample, y= Gene, fill = y)) + 
+gene_list <- rownames(mx_log2_fc)
+gene_sublist <- rep("",length(gene_list))
+gene_sublist[seq(1,length(gene_list), 10)] <- gene_list[seq(1,length(gene_list), 10)]
+
+
+
+
+g1 <- ggplot(data = saturate(df_log2,'y',-4,4), aes(x=Sample, y= Gene, fill = y)) + 
   geom_tile() +
-  scale_fill_gradientn(limits = c(-4,4), 
-                       colours=c("#377eb8", "white", "#e41a1c"))
+  scale_y_discrete("", labels = gene_sublist) + 
+  scale_fill_gradientn(name = expression(log[2](FC)),limits = c(-4,4), 
+                       colors=c("#377eb8", "white", "#e41a1c"),
+                       # breaks = c(-15,-7, 0, 7, 15), labels = mad_fc_labeller,
+                       guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
+                                              barwidth = grid::unit(.6, "npc"), 
+                                              barheight = grid::unit(.025, "npc")),) +
+  theme_classic(base_size = 8) +
+  theme(legend.position="top")
+g1
+save_plot(paste(fig_path, '/', "heatmap_protein_A_log2-fc.jpg", sep = ""),
+          g1, dpi = 600, base_height = ggsize[1], 
+          base_width = ggsize[2]) 
 
 
-
-ggplot(data = saturate(df_lin,'y',1/16,16), aes(x=Sample, y= Gene, fill = y)) + 
+g2 <- ggplot(data = saturate(df_lin,'y',1/16,16), aes(x=Sample, y= Gene, fill = y)) + 
   geom_tile() +
-  scale_fill_gradientn(limits = c(0,16), 
-                       colours=c("#377eb8", "white", "#e41a1c"))
+  scale_y_discrete("", labels = gene_sublist) + 
+  scale_fill_gradientn(name = "FC", limits = c(0,16), 
+                       colors=c("#377eb8", "white", "#e41a1c"),
+                       # breaks = c(-15,-7, 0, 7, 15), labels = mad_fc_labeller,
+                       guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
+                                              barwidth = grid::unit(.6, "npc"), 
+                                              barheight = grid::unit(.025, "npc")),) +
+  theme_classic(base_size = 8) +
+  theme(legend.position="top")
+g2
+save_plot(paste(fig_path, '/', "heatmap_protein_B_fc.jpg", sep = ""),
+          g2, dpi = 600, base_height = ggsize[1], 
+          base_width = ggsize[2])  
 
 
-
-ggplot(data = saturate(df_mad,'y',-16,16), aes(x=Sample, y= Gene, fill = y)) + 
+g3 <- ggplot(data = saturate(df_mad,'y',-16,16), aes(x=Sample, y= Gene, fill = y)) + 
   geom_tile() +
-  scale_fill_gradientn(limits = c(-16,16), 
-                       colours=c("#377eb8", "white", "#e41a1c"))
+  scale_y_discrete("", labels = gene_sublist) + 
+  scale_fill_gradientn(name = "MAD-FC", limits = c(-16,16), 
+                       colors=c("#377eb8", "white", "#e41a1c"),
+                       breaks = c(-15,-7, 0, 7, 15), labels = mad_fc_labeller,
+                       guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
+                                               barwidth = grid::unit(.6, "npc"), 
+                                              barheight = grid::unit(.025, "npc")),) +
+  theme_classic(base_size = 8) +
+  theme(legend.position="top")
+g3
+save_plot(paste(fig_path, '/', "heatmap_protein_C_mad-fc.jpg", sep = ""),
+          g3, dpi = 600, base_height = ggsize[1], 
+          base_width = ggsize[2])  
 
 

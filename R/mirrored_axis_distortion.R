@@ -154,3 +154,25 @@ gg_revaxis_mfc<- function(gg, ax = "y", num_format = "decimal") {
 
 
 
+strfract_2_numeric <- function(frac) {
+  isnegative <- substr(frac,1,1)=='-'
+  if (isnegative) {strfract <- substr(strfract0,2,length(strfract0))
+  } else {strfract <- strfract0}
+}
+
+mad_fc_labeller <- function(breaks, num_format = "fraction") {
+  
+  labels = rep("", length(breaks))
+  labels[breaks == 0] <- as.character(1)
+  labels[breaks > 0] <- as.character(breaks[breaks>0]+1)
+  
+  if (num_format == "decimal") {
+    labels[breaks<0] <- as.character(1 /(breaks[breaks<0]-1))
+  }  else if (num_format == "fraction") {
+    labels[breaks<0] <- paste0("-1/",as.character(abs(breaks[breaks<0]-1)))
+  }  else if (num_format == "power") {
+    labels[breaks<0] <- paste0(as.character(abs(breaks[breaks<0]-1)),"^-1")
+  } else {stop("num_format only supports: decimal, power, or fraction") }
+  
+  return(labels)
+}
