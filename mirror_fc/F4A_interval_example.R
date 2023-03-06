@@ -47,7 +47,6 @@ save_plot(paste(fig_path, '/', "A_int_est_log2-fc.jpg", sep = ""),
           base_width = ggsize[2])  
 
 
-
 ##  Linear Plot
 g1 <- ggplot( data = df_ints, aes(x = fcu, y = mid, ymax = hi, ymin = lo, color = fcu)) +
   geom_hline(yintercept = 1, color = "grey70", size = .3) +
@@ -80,7 +79,7 @@ g2 <- ggplot( data = df_ints, aes(x = fcu, y = mad_mid, ymax = mad_hi, ymin = ma
                      labels = seq(-10,10,2), limits = c(-10.5,10.5)) +
   scale_x_continuous(breaks = df_ints$fcu,
                      labels = df_ints$fcu) +
-  ylab("FC") + xlab("FC from No Change") +
+  ylab("MAD-FC") + xlab("FC from No Change") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2
@@ -89,30 +88,4 @@ g2
 save_plot(paste(fig_path, '/', "C_int_est_mad-fc.jpg", sep = ""),
           g2, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])  
-
-
-# ##  Linear Plot Overlay
-# g2b <- ggplot( data = df_ints, aes(x = rep(0,nrow(df_ints)), y = rep(0,nrow(df_ints)),
-#                                    ymax = mad_hi-mad_mid, ymin = mad_lo-mad_mid, color = fcu) ) +
-#   # geom_hline(yintercept = 0, size = .3) +
-#   geom_vline(xintercept = 0, size = .3, color = "grey70") +
-#   geom_errorbar(width = 0.7, size = .3) +
-#   geom_point(size = .4) + 
-#   scale_y_continuous(limits = c(-10.5,10.5)) + 
-#   scale_x_continuous(limits = c(-1,1)) +
-#   ylab(" ") + xlab(" ") +
-#   theme_classic(base_size = 8) + 
-#   theme(axis.text.x=element_blank(), #remove x axis labels
-#         axis.ticks.x=element_blank(), #remove x axis ticks
-#         axis.text.y=element_blank(),  #remove y axis labels
-#         axis.ticks.y=element_blank(),  #remove y axis ticks
-#         legend.position = "none",
-#         axis.line.x=element_line(color="white"),
-#         axis.line.y=element_line(color="white"))
-# g2b
-# save_plot(paste(fig_path, '/', "C_int_est_mad-fc_overlay.jpg", sep = ""),
-#           g2b, dpi = 600, base_height = ggsize[1], 
-#           base_width = .5)  
-
-
 

@@ -61,53 +61,42 @@ df_exp$mad_fc <- contract1(fc_to_mfc(df_exp$fc))
 
 
 
-
-# Violin plots of same data
-fig_num = "6" 
-fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
-dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
-
-
-
-# Log Plot
+# Log FC Plot
 g0 <- ggplot(data = df_exp, aes(x = Gene, y = log2_fc, color = dataset)) +
   geom_hline(yintercept = 0, size = .3, color = "grey70") +
-  geom_violin(scale = "width", size =.2) +
+  geom_boxplot(size =.3, outlier.size = .3,outlier.alpha = 0.5) +
   ylab(expression(log[2]~FC)) + xlab("Gene Name") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g0
-save_plot(paste(fig_path, '/', "violin_TCGA_A_log2-fc.jpg", sep = ""),
+save_plot(paste(fig_path, '/', "boxplot_TCGA_A_log2-fc.jpg", sep = ""),
           g0, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])  
 
-# Linear Plot
+# Linear FC Plot
 g1 <- ggplot(data = df_exp, aes(x = Gene, y = fc, color = dataset)) +
-  geom_hline(yintercept = 1, color = "grey70") +
-  geom_violin(scale = "width", size = .2) +
+  geom_hline(yintercept = 1, size = .3, color = "grey70") +
+  geom_boxplot(size =.3, outlier.size = .3,outlier.alpha = 0.5) +
   ylab("FC") + xlab("Gene Name") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g1
-save_plot(paste(fig_path, '/', "violin_TCGA_B_fc.jpg", sep = ""),
+save_plot(paste(fig_path, '/', "boxplot_TCGA_B_fc.jpg", sep = ""),
           g1, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])  
 
 # MAD FC Plot
 g2 <- ggplot(data = df_exp, aes(x = Gene, y = mad_fc, color = dataset)) +
-  geom_hline(yintercept = 1, color = "grey70") +
-  geom_violin(scale = "width", size = .2) +
-  scale_y_continuous(breaks = seq(-60,60,20),
-                     labels = seq(-60,60,20)) +
+  geom_hline(yintercept = 1, size = .3, color = "grey70") +
+  geom_boxplot(size =.3, outlier.size = .3,outlier.alpha = 0.5) +
+  scale_y_continuous(breaks = seq(-70,70,10),
+                     labels = seq(-70,70,10)) +
   ylab("MAD-FC") + xlab("Gene Name") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2
 g2 <- gg_revaxis_mfc(g2,'y', num_format = "fraction")
 g2
-save_plot(paste(fig_path, '/', "violin_TCGA_C_mad-fc.jpg", sep = ""),
+save_plot(paste(fig_path, '/', "boxplot_TCGA_C_mad-fc.jpg", sep = ""),
           g2, dpi = 600, base_height = ggsize[1], 
-          base_width = ggsize[2])  
-
-
-
+          base_width = ggsize[2]) 

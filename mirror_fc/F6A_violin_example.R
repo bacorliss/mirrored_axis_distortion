@@ -50,7 +50,7 @@ g1 <- ggplot(df_fc, aes(x=factor(x), y=fc, color = x)) +
   geom_violin(scale = "width", size =.2) +
   scale_colour_gradient(low = "#e41a1c", high = "#377eb8", guide = "colourbar",
                         aesthetics = "colour") +
-  ylab(expression(log[2]~FC)) + xlab("FC from No Change") +
+  ylab("FC") + xlab("FC from No Change") +
   theme_classic(base_size = 8) +
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g1
@@ -65,7 +65,7 @@ g2 <- ggplot(df_fc, aes(x=factor(x), y=mad_fc, color = x)) +
   geom_violin(scale = "width", size =.2) +
   scale_colour_gradient(low = "#e41a1c", high = "#377eb8", guide = "colourbar",
                         aesthetics = "colour") +
-  ylab(expression(log[2]~FC)) + xlab("FC from No Change") +
+  ylab("MAD-FC") + xlab("FC from No Change") +
   theme_classic(base_size = 8) +
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2
