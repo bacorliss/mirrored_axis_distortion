@@ -39,7 +39,7 @@ data_results <- LFQ(data, experimental_design, fun = "MinProb",
 results_table <- data_results$results
 
 # Number of significant proteins
-results_table %>% filter(significant) %>% nrow()
+# results_table %>% filter(significant) %>% nrow()
 
 
 # Extract the sign object
@@ -112,12 +112,18 @@ save_plot(paste(fig_path, '/', "heatmap_protein_A_log2-fc.jpg", sep = ""),
 g2 <- ggplot(data = saturate(df_lin,'y',1/16,16), aes(x=Sample, y= Gene, fill = y)) + 
   geom_tile() +
   scale_y_discrete("", labels = gene_sublist) + 
-  scale_fill_gradientn(name = "FC", limits = c(0,16), 
-                       colors=c("#377eb8", "white", "#e41a1c"),
-                       # breaks = c(-15,-7, 0, 7, 15), labels = mad_fc_labeller,
+  scale_fill_gradientn(name = "FC", limits = c(0,16),
+                       colors=c("#377eb8", "white", "#e41a1c"), values=c(0, .75/16, 1.25/16, 1),
+                       breaks = c(0,-1/16,1, 4,8,12,16),
                        guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
-                                              barwidth = grid::unit(.6, "npc"), 
+                                              barwidth = grid::unit(.6, "npc"),
                                               barheight = grid::unit(.025, "npc")),) +
+  # scale_fill_gradient2(name = "FC", limits = c(0,16), 
+  #                      low = "#377eb8", mid = "white", high = "#e41a1c",midpoint = 1,
+  #                      breaks = c(0, 1, 4, 8, 16),
+  #                      guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
+  #                                             barwidth = grid::unit(.6, "npc"), 
+  #                                             barheight = grid::unit(.025, "npc")),) +
   theme_classic(base_size = 8) +
   theme(legend.position="top")
 g2
