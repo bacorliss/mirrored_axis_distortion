@@ -102,7 +102,7 @@ save_plot(paste(fig_path, '/', "D_Ax-Rev_con-mfc_power.jpg", sep = ""),
           base_width = ggsize[2])
 
 # MAD FC Fraction
-g6 <- gg_revaxis_mfc(g3,'x',num_format = "fraction") + xlab("MAD-MFC") 
+g6 <- gg_revaxis_mfc(g3,'x',num_format = "fraction") + xlab("MAD-FC") 
 g6
 save_plot(paste(fig_path, '/', "D_Ax-Rev_con-mfc_fraction.jpg", sep = ""),
           g6, dpi = 600, base_height = ggsize[1], 
