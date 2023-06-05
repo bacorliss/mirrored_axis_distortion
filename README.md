@@ -15,7 +15,9 @@ Code for the transform is found in /R/mirrored_axis_distortion.R
 <br>
 This code will be converted to an r package shortly
 
-All figures found in [1] can be reproduced with script found in /mirror_fc/
+All figures found in [1] can be reproduced with scripts found in /mirror_fc/.
+
+Note: to run scripts, run "set_wd_here.R" to set the working directory to the base path of this repository.
 
 
 
