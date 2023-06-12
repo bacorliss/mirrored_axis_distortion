@@ -1,6 +1,7 @@
 # Mirror Axis Distortion
 A new visualization for fold change data that combines the directional symmetry of log plots with the linear mapping of linear plots.
 
+![\MAD Cover Image](/media/cover.JPG)
 
 This repository contains code to reproduce the figures from: 
 <br>
