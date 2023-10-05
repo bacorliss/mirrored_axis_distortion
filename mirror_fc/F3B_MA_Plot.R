@@ -1,27 +1,23 @@
 
 
-
-if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
-}
-install.packages(
-  pkgs = "DESeqAnalysis",
-  repos = c(
-    "https://r.acidgenomics.com",
-    BiocManager::repositories()
-  ),
-  dependencies = TRUE
-)
+# Code appropriated from:
+# https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#the-deseqdataset
 
 
+# Install required Base Packages
+base_packages <- c("magrittr", "ggplot2", "tidyverse", "cowplot","BiocManager")
+install.packages(setdiff(base_packages, rownames(installed.packages())))  
+# Install required Bioconductor Packages
+biocm_packages <- c("DESeq2", "org.Hs.eg.db","airway")
+bioc_installs <- setdiff(biocm_packages, rownames(installed.packages()))
+if (length(bioc_installs)) {BiocManager::install(bioc_installs) }
 
-library('airway')
-library('magrittr')
-library('org.Hs.eg.db')
-library('DESeq2')
-library("cowplot")
-library("ggplot2")
+# Load base packages
+lapply(base_packages, library, character.only = TRUE)
+# Load Bioconductor packages packages
+lapply(biocm_packages, library, character.only = TRUE)
 source("R/mirrored_axis_distortion.R")
+
 
 
 # Linear visualization
@@ -45,13 +41,17 @@ rownames(airway) <- symbols
 keep <- !is.na(rownames(airway))
 airway <- airway[keep,]
 
-# Calcualte fold change
+# Calculate fold change
 dds <- DESeqDataSet(airway, design = ~ cell + dex)
+# Perform differential gene expression analysis with Walde significance test without a beta prior
 dds <- DESeq(dds, betaPrior=FALSE)
+# Extract results with treated versus untreated cells 
 res <- results(dds,
                contrast = c('dex','trt','untrt'))
+# Perform shrinkage of dispersion estimates to refine log2 fold changes estimates
 res <- lfcShrink(dds,
                  contrast = c('dex','trt','untrt'), res=res, type = 'normal')
+# Fold changes were calcualted from 
 res$FoldChange <- 2^res$log2FoldChange
 
 

@@ -50,9 +50,10 @@ manual_colors = c("#d95f02", "#1b9e77", "#7570b3")
 
 g1 <- ggplot(data = fc_test, aes(y = abs_fcu, x = fc, color = Direction)) + 
   geom_vline(xintercept = 1) +
-  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("FC from Zero") + xlab("FC") + 
-  theme(legend.position="none", panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank()) +
+  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("|FCU|") + xlab("FC") + 
+  theme(legend.position="none", 
+        # panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()
+        ) +
   scale_y_reverse(labels = as.character(fc_test$abs_fcu), breaks = fc_test$abs_fcu) +
   scale_color_manual(values=manual_colors) 
 g1
@@ -64,9 +65,10 @@ save_plot(paste(fig_path, '/', "A_fc.jpg", sep = ""),
 g2 <- ggplot(data = fc_test, aes(y = abs_fcu, x = mfc, color = Direction)) + 
   annotate("rect", ymax = Inf, ymin = -Inf, xmin = -1, xmax = 1, alpha = 0.25) +
   geom_vline(xintercept = 0) +
-  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("FC from Zero") + xlab("M-FC") + 
-  theme(legend.position="none", panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank()) +
+  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("|FCU|") + xlab("MFC") + 
+  theme(legend.position="none", 
+        # panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()
+        ) +
   scale_y_reverse(labels = as.character(fc_test$abs_fcu), breaks = fc_test$abs_fcu) +
   scale_color_manual(values=manual_colors)
 g2
@@ -77,9 +79,10 @@ save_plot(paste(fig_path, '/', "B_m-fc.jpg", sep = ""),
 
 g3 <- ggplot(data = fc_test, aes(y = abs_fcu, x = contract_mfc, color = Direction)) + 
   geom_vline(xintercept = 0) +
-  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("FC from Zero") + xlab("Con-MFC") + 
-  theme(legend.position="none", panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank()) +
+  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("|FCU|") + xlab("Con-MFC") + 
+  theme(legend.position="none", 
+        # panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()
+        ) +
   scale_y_reverse(labels = as.character(fc_test$abs_fcu), breaks = fc_test$abs_fcu) +
   scale_color_manual(values=manual_colors)
 g3

@@ -34,16 +34,16 @@ g1 <- ggplot(data = df,aes(x=label, y = log2_mid, color = color)) +
   geom_hline(yintercept = 0, color = "grey") +
   geom_hline(yintercept = c(-.26, 0.26), color = "grey", linetype = "dashed") +
   geom_errorbar(aes(ymax = log2_hi, ymin = log2_lo), linewidth = .8, width = .8, 
-                position=position_dodge(width=0.4), alpha =.6) + 
-  geom_point(size = .8,position=position_dodge(width=0.4),alpha = 1) +
+                position=position_dodge(width = 0.6), alpha = 1) + 
+  geom_point(size = .8,position=position_dodge(width = 0.6),alpha = 1) +
   theme_classic(base_size = 8) + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=7),
         legend.position = "none"
   ) +
   scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c("#1b9e77", "#d95f02", "#7570b3")) +
   scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c(18, 15, 17)) +
-  scale_y_continuous(expand = c(0,0)) +
-  coord_cartesian(ylim = c(-4,2)) +
+  # scale_y_continuous(expand = c(0,0)) +
+  # coord_cartesian(ylim = c(-4,2)) +
   xlab("") + ylab("Log2(FC) From Vehicle Tx")
 g1
 save_plot(paste(fig_path, '/', "A_gene-int_log2.png", sep = ""),
@@ -56,8 +56,8 @@ g2 <- ggplot(data = df,aes(x=label, y = mid, color = color)) +
   geom_hline(yintercept = 1, color = "grey") +
   geom_hline(yintercept = c(1.2, 0.8), color = "grey", linetype = "dashed") +
   geom_errorbar(aes(ymax = hi, ymin = lo), linewidth = .8, width = .8, 
-                position=position_dodge(width=0.4), alpha =.6) + 
-  geom_point(size = .8,position=position_dodge(width=0.4),alpha = 1) +
+                position=position_dodge(width = 0.6), alpha = 1) + 
+  geom_point(size = .8,position=position_dodge(width = 0.6),alpha = 1) +
   theme_classic(base_size = 8) + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=7),
           legend.position = "none",
@@ -67,7 +67,7 @@ g2 <- ggplot(data = df,aes(x=label, y = mid, color = color)) +
         ) +
   scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
                      values = c("#1b9e77", "#d95f02", "#7570b3")) +
-  scale_y_continuous(expand = c(0,0),breaks=seq(0,3,.5)) +
+  scale_y_continuous(breaks=seq(0,3,.5)) +
   xlab("") + ylab("FC From Vehicle Tx")
 g2
 save_plot(paste(fig_path, '/', "B_gene-int_fc.png", sep = ""),
@@ -80,8 +80,8 @@ g3 <- ggplot(data = df,aes(x=label, y = mfc_mid, color = color)) +
   geom_hline(yintercept = 0, color = "grey") +
   geom_hline(yintercept = c(.2, -0.2), color = "grey", linetype = "dashed") +
   geom_errorbar(aes(ymax = mfc_hi, ymin = mfc_lo), linewidth = .8, width = .8, 
-                position=position_dodge(width=0.4), alpha =.6) + 
-  geom_point(size = .8,position=position_dodge(width=0.4),alpha = 1) +
+                position=position_dodge(width = 0.6), alpha = 1) + 
+  geom_point(size = .8,position=position_dodge(width = 0.6),alpha = 1) +
   theme_classic(base_size = 8) + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=7),
         legend.position = "none",
@@ -91,8 +91,8 @@ g3 <- ggplot(data = df,aes(x=label, y = mfc_mid, color = color)) +
   ) +
   scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c("#1b9e77", "#d95f02", "#7570b3")) +
   scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c(18, 15, 17)) +
-  scale_y_continuous(expand = c(0,0)) +
-  coord_cartesian(ylim = c(-9,3)) +
+  # scale_y_continuous(expand = c(0,0)) +
+  # coord_cartesian(ylim = c(-9,3)) +
   xlab("") + ylab("MAD-FC From Vehicle Tx")
 g3
 g3 <- gg_revaxis_mfc(g3,'y', num_format = "fraction")

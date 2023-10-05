@@ -29,7 +29,10 @@ fc_test$con_mfc <- contract1(fc_test$mfc)
 
 ##  Linear Plot
 g0 <- ggplot( data = fc_test, aes(y = fc, x = fcu0)) + 
-  geom_abline(slope = 1,intercept = 1, color = "grey") +
+  geom_segment(aes(x = 0, y = fc[which(fcu0==0)], xend = fcu0[which.max(fc)], 
+                   yend = max(fc)),color = "grey") +
+  geom_segment(aes(x = fcu0[which.min(fc)], y = min(fc), xend = 0, 
+                   yend = fc[which(fcu0==0)]),color = "grey") +
   geom_point(size = 1) + 
   geom_hline(yintercept = 1) +
   geom_vline(xintercept = 0) +
@@ -37,7 +40,7 @@ g0 <- ggplot( data = fc_test, aes(y = fc, x = fcu0)) +
                      labels = 0:6) +
   scale_x_continuous(breaks = fc_test$fcu0,
                      labels = fc_test$fcu0) +
-  ylab("FC") + xlab("FC from No Change") +
+  ylab("FC") + xlab("Fold Change Units") +
   theme_minimal(base_size = 8) + theme(panel.grid.minor = element_blank())
 g0
 save_plot(paste(fig_path, '/', "A_fc_linear.jpg", sep = ""),
@@ -54,7 +57,7 @@ g1 <- ggplot( data = fc_test, aes(y = fc, x = fcu0)) +
                      breaks = trans_breaks("log2", function(x) 2^x),
                      labels = trans_format("log2", math_format(2^.x))) +
   scale_x_continuous(breaks = fc_test$fcu0, labels = fc_test$fcu0) +
-  ylab("FC") + xlab("FC from No Change") +
+  ylab("FC") + xlab("Fold Change Units") +
   theme_minimal(base_size = 8) + theme(panel.grid.minor = element_blank())
 g1
 save_plot(paste(fig_path, '/', "B_fc_log2.jpg", sep = ""),
@@ -63,12 +66,16 @@ save_plot(paste(fig_path, '/', "B_fc_log2.jpg", sep = ""),
 
 # log of fold change
 g2 <- ggplot( data = fc_test, aes(y = log2fc, x = fcu0)) + 
-  geom_abline(slope = max(fc_test$fc)/max(fc_test$fcu0)/2.32,intercept = 0, color = "grey") +
+  geom_segment(aes(x = 0, y = log2fc[which(fcu0==0)], xend = fcu0[which.max(log2fc)], 
+                   yend = max(log2fc)),color = "grey") +
+  geom_segment(aes(x = fcu0[which.min(log2fc)], y = min(log2fc), xend = 0, 
+                   yend = log2fc[which(fcu0==0)]),color = "grey") +
+  # geom_abline(slope = max(fc_test$fc)/max(fc_test$fcu0)/2.32,intercept = 0, color = "grey") +
   geom_point(size = 1) + 
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 0) +
   scale_x_continuous(breaks = fc_test$fcu0, labels = fc_test$fcu0) +
-  ylab(expression(Log[2]~(FC))) + xlab("FC from No Change") +
+  ylab(expression(Log[2]~(FC))) + xlab("Fold Change Units") +
   theme_minimal(base_size = 8) + theme(panel.grid.minor = element_blank())
 g2
 save_plot(paste(fig_path, '/', "B_log2_fc.jpg", sep = ""),
@@ -78,13 +85,17 @@ save_plot(paste(fig_path, '/', "B_log2_fc.jpg", sep = ""),
 
 # Mirrored Contracted Fold Change
 g3 <- ggplot( data = fc_test, aes(y = con_mfc, x = fcu0)) + 
-  geom_abline(slope = 1,intercept = 0, color = "grey") +
+  geom_segment(aes(x = 0, y = con_mfc[which(fcu0==0)], xend = fcu0[which.max(con_mfc)], 
+                   yend = max(con_mfc)),color = "grey") +
+  geom_segment(aes(x = fcu0[which.min(con_mfc)], y = min(con_mfc), xend = 0, 
+                   yend = con_mfc[which(fcu0==0)]),color = "grey") +
+  # geom_abline(slope = 1,intercept = 0, color = "grey") +
   geom_point() + 
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 0) +
   scale_y_continuous(breaks = fc_test$con_mfc, labels = fc_test$con_mfc) +
   scale_x_continuous(breaks = fc_test$fcu0, labels = fc_test$fcu0) +
-  ylab("Con-MFC") + xlab("FC from No Change") +
+  ylab("Con-MFC") + xlab("Fold Change Units") +
   theme_minimal(base_size = 8) + theme(panel.grid.minor = element_blank())
 g3
 save_plot(paste(fig_path, '/', "C_con_mfc.jpg", sep = ""),
@@ -99,7 +110,7 @@ g4 <- ggplot( data = fc_test, aes(y = con_mfc, x = fcu0)) +
   geom_vline(xintercept = 0) +
   scale_y_continuous(breaks = fc_test$con_mfc, labels = fc_test$con_mfc) +
   scale_x_continuous(breaks = fc_test$fcu0, labels = fc_test$fcu0) +
-  ylab("MAD-FC") + xlab("FC from No Change") +
+  ylab("MAD-FC") + xlab("Fold Change Units") +
   theme_minimal(base_size = 8) + theme(panel.grid.minor = element_blank())
 g4
   g4 <- gg_revaxis_mfc(g4,'y', num_format = "fraction")

@@ -1,22 +1,21 @@
 
 
+# Dataset: Airway package in bioconductor
 # Citation: https://pubmed.ncbi.nlm.nih.gov/24926665/
 
-# https://bioconductor.org/packages/devel/bioc/vignettes/EnhancedVolcano/inst/doc/EnhancedVolcano.html
 
-if (!requireNamespace('BiocManager', quietly = TRUE)) {
-  install.packages('BiocManager')
-}
+# Install required Base Packages
+base_packages <- c("magrittr", "ggplot2", "tidyverse", "cowplot","BiocManager")
+install.packages(setdiff(base_packages, rownames(installed.packages())))  
+# Install required Bioconductor Packages
+biocm_packages <- c("DESeq2", "org.Hs.eg.db","airway","EnhancedVolcano")
+bioc_installs <- setdiff(biocm_packages, rownames(installed.packages()))
+if (length(bioc_installs)) {BiocManager::install(bioc_installs) }
 
-if (!requireNamespace('EnhancedVolcano', quietly = TRUE)) {
-  BiocManager::install('EnhancedVolcano')
-}; library(EnhancedVolcano)
-
-library('airway')
-library('magrittr')
-library('org.Hs.eg.db')
-library('DESeq2')
-library("cowplot")
+# Load base packages
+lapply(base_packages, library, character.only = TRUE)
+# Load Bioconductor packages packages
+lapply(biocm_packages, library, character.only = TRUE)
 source("R/mirrored_axis_distortion.R")
 
 
@@ -41,7 +40,7 @@ rownames(airway) <- symbols
 keep <- !is.na(rownames(airway))
 airway <- airway[keep,]
 
-# Calcualte fold change
+# Calculate fold change
 dds <- DESeqDataSet(airway, design = ~ cell + dex)
 dds <- DESeq(dds, betaPrior=FALSE)
 res <- results(dds,
@@ -76,7 +75,7 @@ g1 <- ggplot(data=df_gene, aes(x=log2FoldChange, y=-log10(pvalue))) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
   theme_classic(base_size = 8) + 
-  ylab(expression(-log[10]~(p-value))) +
+  ylab(expression(-log[10]~(`p-value`))) +
   xlab(expression(log[2]~(FC))) +
   theme(legend.position = "none")     
 g1
@@ -92,7 +91,7 @@ g2 <- ggplot(data=df_gene, aes(x=FoldChange, y=-log10(pvalue))) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
   theme_classic(base_size = 8)   +
-  ylab(expression(-log[10]~(p-value))) +
+  ylab(expression(-log[10]~(`p-value`))) +
   xlab("FC") +
   theme(legend.position = "none")     
 g2
@@ -108,7 +107,7 @@ g3 <- ggplot(data=df_gene, aes(x=mcFoldChange, y=-log10(pvalue))) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
   theme_classic(base_size = 8) +
-  ylab(expression(-log[10]~(p-value))) +
+  ylab(expression(-log[10]~(`p-value`))) +
   xlab("MAD-FC") +
   theme(legend.position = "none") +
   scale_x_continuous(breaks=c(c(-9, - 4, 0, seq(4,30,5))), expand = c(0,0)) +

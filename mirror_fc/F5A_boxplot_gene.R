@@ -4,9 +4,25 @@ library(ggplot2)
 library(cowplot)
 source("R/mirrored_axis_distortion.R")
 
+
+# Code used from this tutorial:
 # http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/77-facilitating-exploratory-data-visualization-application-to-tcga-genomic-data/
 
 
+
+# Install required Base Packages
+base_packages <- c("ggplot2", "tidyverse", "cowplot","BiocManager","ggpubr")
+install.packages(setdiff(base_packages, rownames(installed.packages())))  
+# Install required Bioconductor Packages
+biocm_packages <- c("RTCGA", "RTCGA.mRNA")
+bioc_installs <- setdiff(biocm_packages, rownames(installed.packages()))
+if (length(bioc_installs)) {BiocManager::install(bioc_installs) }
+
+# Load base packages
+lapply(base_packages, library, character.only = TRUE)
+# Load Bioconductor packages packages
+lapply(biocm_packages, library, character.only = TRUE)
+source("R/mirrored_axis_distortion.R")
 
 
 # Linear visualization
@@ -17,28 +33,8 @@ dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
 ggsize <- c(2,2)
 
 
-# install.packages("ggpubr")
-library(ggpubr)
 
 
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install(version = "3.16")
-
-
-# Install the main RTCGA package
-
-library(BiocManager)
-# BiocManager::install("RTCGA")
-# # Install the clinical and mRNA gene expression data packages
-# BiocManager::install("RTCGA.clinical")
-# BiocManager::install("RTCGA.mRNA")
-
-
-
-# Preprocessing
-library(RTCGA)
-library(RTCGA.mRNA)
 expr <- expressionsTCGA(BRCA.mRNA, OV.mRNA, LUSC.mRNA,
                         extract.cols = c("GATA3", "PTEN", "XBP1","ESR1", "MUC1"))
 expr
@@ -48,10 +44,6 @@ expr$bcr_patient_barcode <- paste0(expr$dataset, c(1:590, 1:561, 1:154))
 expr
 
 
-library(ggplot2)
-library(tidyverse)
-library(cowplot)
-source("R/mirrored_axis_distortion.R")
 
 ggsize <- c(2.25,2.25)
 
