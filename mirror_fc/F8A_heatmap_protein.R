@@ -1,5 +1,6 @@
 
 
+# Code and data appropriated from
 # https://bioconductor.org/packages/devel/bioc/vignettes/DEP/inst/doc/DEP.html
 
 # 5.0 Workflow functions for the entire analysis
@@ -9,10 +10,23 @@
 # Differential enrichment analysis of label-free proteomics data can be performed using the LFQ workflow function.
 
 
-library(DESeq2)
-library(ggplot2)
-library(DEP)
+
+# Install required Base Packages
+base_packages <- c("ggplot2", "tidyverse", "cowplot","BiocManager", "reshape2")
+install.packages(setdiff(base_packages, rownames(installed.packages())))  
+# Install required Bioconductor Packages
+biocm_packages <- c("DESeq2", "DEP")
+bioc_installs <- setdiff(biocm_packages, rownames(installed.packages()))
+if (length(bioc_installs)) {BiocManager::install(bioc_installs) }
+
+# Load base packages
+lapply(base_packages, library, character.only = TRUE)
+# Load Bioconductor packages packages
+lapply(biocm_packages, library, character.only = TRUE)
 source("R/mirrored_axis_distortion.R")
+
+
+
 
 
 # The data is provided with the package 
@@ -54,9 +68,6 @@ mx_fc <- 2^mx_log2_fc
 
 mx_mad_fc <- mx_fc
 mx_mad_fc[] <- vapply(mx_mad_fc, function(x) contract1(fc_to_mfc(x)), numeric(1))
-
-library(tidyverse)
-library(reshape2)
 
 
 df_log2 <- as.data.frame(melt(mx_log2_fc, varnames=c('Gene', 'Sample'), value.name = "y"))
