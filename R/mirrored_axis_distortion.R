@@ -127,6 +127,8 @@ mirror_fc <- function(x, forward = TRUE) {
 #' 
 gg_revaxis_mfc<- function(gg, ax = "y", num_format = "decimal") {
 
+  # browser()
+  
   xlabs <- ggplot_build(gg)$layout$panel_params[[1]][[ax]]$get_labels()
   # Remove NAs (sometimes there are hidden empty ticks)
   xlabs <- xlabs[!is.na(xlabs)]

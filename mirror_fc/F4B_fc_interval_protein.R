@@ -44,7 +44,7 @@ g1 <- ggplot(data = df,aes(x=label, y = log2_mid, color = color)) +
   scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c(18, 15, 17)) +
   # scale_y_continuous(expand = c(0,0)) +
   # coord_cartesian(ylim = c(-4,2)) +
-  xlab("") + ylab("Log2(FC) From Vehicle Tx")
+  xlab("") + ylab("Log2(FC)")
 g1
 save_plot(paste(fig_path, '/', "A_gene-int_log2.png", sep = ""),
           g1, dpi = 600, base_height = ggsize[1], 
@@ -68,7 +68,7 @@ g2 <- ggplot(data = df,aes(x=label, y = mid, color = color)) +
   scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
                      values = c("#1b9e77", "#d95f02", "#7570b3")) +
   scale_y_continuous(breaks=seq(0,3,.5)) +
-  xlab("") + ylab("FC From Vehicle Tx")
+  xlab("") + ylab("FC")
 g2
 save_plot(paste(fig_path, '/', "B_gene-int_fc.png", sep = ""),
           g2, dpi = 600, base_height = ggsize[1], 
@@ -93,7 +93,7 @@ g3 <- ggplot(data = df,aes(x=label, y = mfc_mid, color = color)) +
   scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c(18, 15, 17)) +
   # scale_y_continuous(expand = c(0,0)) +
   # coord_cartesian(ylim = c(-9,3)) +
-  xlab("") + ylab("MAD-FC From Vehicle Tx")
+  xlab("") + ylab("MAD-FC")
 g3
 g3 <- gg_revaxis_mfc(g3,'y', num_format = "fraction")
 g3

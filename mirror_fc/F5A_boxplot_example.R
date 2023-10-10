@@ -42,7 +42,7 @@ g0 <- ggplot(df_log2, aes(x=x, ymin = min, lower = lower, middle = mid,
                         aesthetics = "colour") +
   # scale_fill_manual(values = rep("white",5)) +
   # scale_color_manual(values = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00")) +
-  ylab(expression(log[2]~FC)) + xlab("FC from No Change") +
+  ylab(expression(log[2]~FC)) + xlab("Fold Change Units") +
   theme_classic(base_size = 8) +
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g0
@@ -91,7 +91,7 @@ g1 <- ggplot(df_lin, aes(x=x, ymin = min, lower = lower, middle = mid,
                         aesthetics = "colour") +
   # scale_fill_manual(values = rep("white",5)) +
   # scale_color_manual(values = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00")) +
-  ylab("FC") + xlab("FC from No Change") +
+  ylab("FC") + xlab("Fold Change Units") +
   theme_classic(base_size = 8) +
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g1
@@ -139,7 +139,7 @@ g2 <- ggplot(df_mad, aes(x=x, ymin = min, lower = lower, middle = mid,
                         aesthetics = "colour") +
   # scale_fill_manual(values = rep("white",5)) +
   # scale_color_manual(values = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00")) +
-  ylab("MAD-FC") + xlab("FC from No Change") +
+  ylab("MAD-FC") + xlab("Fold Change Units") +
   theme_classic(base_size = 8) +
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2

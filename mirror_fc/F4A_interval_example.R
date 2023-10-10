@@ -6,7 +6,7 @@ source("R/mirrored_axis_distortion.R")
 
 # Linear visualization
 base_dir = "mirror_fc"
-fig_num = "3" 
+fig_num = "4" 
 fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
 dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
 ggsize <- c(2,2)
@@ -38,7 +38,7 @@ g0 <- ggplot( data = df_ints, aes(x = fcu, y = log2_mid, ymax = log2_hi, ymin = 
                      labels = seq(-3,3,1),limits = c(-3.5,3.5)) + 
   scale_x_continuous(breaks = df_ints$fcu,
                      labels = df_ints$fcu) +
-  ylab(expression(log[2]~FC)) + xlab("FC from No Change") +
+  ylab(expression(log[2]~FC)) + xlab("Fold Change Units") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g0
@@ -58,7 +58,7 @@ g1 <- ggplot( data = df_ints, aes(x = fcu, y = mid, ymax = hi, ymin = lo, color 
   scale_y_continuous(limits = c(0,11)) +
   scale_x_continuous(breaks = df_ints$fcu,
                      labels = df_ints$fcu) +
-  ylab("FC") + xlab("FC from No Change") +
+  ylab("FC") + xlab("Fold Change Units") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g1
@@ -79,7 +79,7 @@ g2 <- ggplot( data = df_ints, aes(x = fcu, y = mad_mid, ymax = mad_hi, ymin = ma
                      labels = seq(-10,10,2), limits = c(-10.5,10.5)) +
   scale_x_continuous(breaks = df_ints$fcu,
                      labels = df_ints$fcu) +
-  ylab("MAD-FC") + xlab("FC from No Change") +
+  ylab("MAD-FC") + xlab("Fold Change Units") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2
