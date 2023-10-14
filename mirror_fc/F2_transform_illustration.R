@@ -79,7 +79,7 @@ save_plot(paste(fig_path, '/', "B_m-fc.jpg", sep = ""),
 
 g3 <- ggplot(data = fc_test, aes(y = abs_fcu, x = contract_mfc, color = Direction)) + 
   geom_vline(xintercept = 0) +
-  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("|FCU|") + xlab("Con-MFC") + 
+  geom_point(size=1) + theme_minimal(base_size = 8) + ylab("|FCU|") + xlab("MAD-FC") + 
   theme(legend.position="none", 
         # panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()
         ) +
@@ -91,21 +91,21 @@ save_plot(paste(fig_path, '/', "C_mcon-fc.jpg", sep = ""),
           base_width = ggsize[2])
 
 # MAD FC Decimal
-g4 <- gg_revaxis_mfc(g3,'x',num_format = "decimal") + xlab("MAD-FC") 
+g4 <- gg_revaxis_mfc(g3,'x',num_format = "decimal") + xlab("FC") 
 g4
 save_plot(paste(fig_path, '/', "D_Ax-Rev_con-mfc_decimal.jpg", sep = ""),
           g4, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])
 
 # MAD FC Power
-g5 <- gg_revaxis_mfc(g3,'x',num_format = "power") + xlab("MAD-FC") 
+g5 <- gg_revaxis_mfc(g3,'x',num_format = "power") + xlab("FC") 
 g5
 save_plot(paste(fig_path, '/', "D_Ax-Rev_con-mfc_power.jpg", sep = ""),
           g5, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])
 
 # MAD FC Fraction
-g6 <- gg_revaxis_mfc(g3,'x',num_format = "fraction") + xlab("MAD-FC") 
+g6 <- gg_revaxis_mfc(g3,'x',num_format = "fraction") + xlab("FC") 
 g6
 save_plot(paste(fig_path, '/', "D_Ax-Rev_con-mfc_fraction.jpg", sep = ""),
           g6, dpi = 600, base_height = ggsize[1], 

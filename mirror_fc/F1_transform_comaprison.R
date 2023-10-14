@@ -95,7 +95,7 @@ g3 <- ggplot( data = fc_test, aes(y = con_mfc, x = fcu0)) +
   geom_vline(xintercept = 0) +
   scale_y_continuous(breaks = fc_test$con_mfc, labels = fc_test$con_mfc) +
   scale_x_continuous(breaks = fc_test$fcu0, labels = fc_test$fcu0) +
-  ylab("Con-MFC") + xlab("Fold Change Units") +
+  ylab("MAD-MFC") + xlab("Fold Change Units") +
   theme_minimal(base_size = 8) + theme(panel.grid.minor = element_blank())
 g3
 save_plot(paste(fig_path, '/', "C_con_mfc.jpg", sep = ""),
@@ -110,7 +110,7 @@ g4 <- ggplot( data = fc_test, aes(y = con_mfc, x = fcu0)) +
   geom_vline(xintercept = 0) +
   scale_y_continuous(breaks = fc_test$con_mfc, labels = fc_test$con_mfc) +
   scale_x_continuous(breaks = fc_test$fcu0, labels = fc_test$fcu0) +
-  ylab("MAD-FC") + xlab("Fold Change Units") +
+  ylab("FC") + xlab("Fold Change Units") +
   theme_minimal(base_size = 8) + theme(panel.grid.minor = element_blank())
 g4
   g4 <- gg_revaxis_mfc(g4,'y', num_format = "fraction")

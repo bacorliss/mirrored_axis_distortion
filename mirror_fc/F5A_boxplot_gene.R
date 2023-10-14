@@ -1,8 +1,5 @@
 
 
-library(ggplot2)
-library(cowplot)
-source("R/mirrored_axis_distortion.R")
 
 
 # Code used from this tutorial:
@@ -34,7 +31,12 @@ ggsize <- c(2,2)
 
 
 
+# Extract expression values from the following datasets
+# 1. Breast invasive carcinoma (BRCA.mRNA) 
+# 2. Ovarian serous cystadenocarcinoma (OV.mRNA) 
+# 3. Lung squamous cell carcinoma (LUSC.mRNA)
 
+# Expression for 5 genes extracted: GATA3, PTEN, XBP1, ESR1 and MUC1 
 expr <- expressionsTCGA(BRCA.mRNA, OV.mRNA, LUSC.mRNA,
                         extract.cols = c("GATA3", "PTEN", "XBP1","ESR1", "MUC1"))
 expr
@@ -47,6 +49,7 @@ expr
 
 ggsize <- c(2.25,2.25)
 
+# Convert dataframe of RNA expresison from wide to long format
 df_exp <- expr %>% pivot_longer(cols = !c(bcr_patient_barcode, dataset), names_to = "Gene", values_to = "log2_fc")
 df_exp$fc <- 2^df_exp$log2_fc
 df_exp$mad_fc <- contract1(fc_to_mfc(df_exp$fc))
@@ -57,7 +60,7 @@ df_exp$mad_fc <- contract1(fc_to_mfc(df_exp$fc))
 g0 <- ggplot(data = df_exp, aes(x = Gene, y = log2_fc, color = dataset)) +
   geom_hline(yintercept = 0, size = .3, color = "grey70") +
   geom_boxplot(size =.3, outlier.size = .3,outlier.alpha = 0.5) +
-  ylab(expression(log[2]~FC)) + xlab("Gene Name") +
+  ylab(expression(log[2]~(FC))) + xlab("Gene Name") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g0
@@ -83,7 +86,7 @@ g2 <- ggplot(data = df_exp, aes(x = Gene, y = mad_fc, color = dataset)) +
   geom_boxplot(size =.3, outlier.size = .3,outlier.alpha = 0.5) +
   scale_y_continuous(breaks = seq(-70,70,10),
                      labels = seq(-70,70,10)) +
-  ylab("MAD-FC") + xlab("Gene Name") +
+  ylab("FC") + xlab("Gene Name") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2

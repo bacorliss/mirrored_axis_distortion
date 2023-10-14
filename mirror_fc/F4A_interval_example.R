@@ -28,8 +28,8 @@ df_ints$mad_hi  <- contract1(fc_to_mfc(df_ints$hi))
 
 ##  Log Plot
 g0 <- ggplot( data = df_ints, aes(x = fcu, y = log2_mid, ymax = log2_hi, ymin = log2_lo,color = fcu)) +
-  geom_hline(yintercept = 0, size = .3, color = "grey70") +
-  geom_vline(xintercept = 0, size = .3, color = "grey70") +
+  geom_hline(yintercept = 0, linewidth = .3, color = "grey70") +
+  geom_vline(xintercept = 0, linewidth = .3, color = "grey70") +
   geom_errorbar(width = 0.5, size = .4) +
   geom_point(size = .4) + 
   scale_colour_gradient(low = "#e41a1c", high = "#377eb8", guide = "colourbar",
@@ -38,7 +38,7 @@ g0 <- ggplot( data = df_ints, aes(x = fcu, y = log2_mid, ymax = log2_hi, ymin = 
                      labels = seq(-3,3,1),limits = c(-3.5,3.5)) + 
   scale_x_continuous(breaks = df_ints$fcu,
                      labels = df_ints$fcu) +
-  ylab(expression(log[2]~FC)) + xlab("Fold Change Units") +
+  ylab(expression(log[2]~(FC))) + xlab("Fold Change Units") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g0
@@ -49,8 +49,8 @@ save_plot(paste(fig_path, '/', "A_int_est_log2-fc.jpg", sep = ""),
 
 ##  Linear Plot
 g1 <- ggplot( data = df_ints, aes(x = fcu, y = mid, ymax = hi, ymin = lo, color = fcu)) +
-  geom_hline(yintercept = 1, color = "grey70", size = .3) +
-  geom_vline(xintercept = 0, color = "grey70", size = .3) +
+  geom_hline(yintercept = 1, color = "grey70", linewidth = .3) +
+  geom_vline(xintercept = 0, color = "grey70", linewidth = .3) +
   geom_errorbar(width = 0.5, size = .3) +
   geom_point(size = .4) + 
   scale_colour_gradient(low = "#e41a1c", high = "#377eb8", guide = "colourbar",
@@ -69,8 +69,8 @@ save_plot(paste(fig_path, '/', "B_int_est_linear-fc.jpg", sep = ""),
 
 ##  MAD Plot
 g2 <- ggplot( data = df_ints, aes(x = fcu, y = mad_mid, ymax = mad_hi, ymin = mad_lo, color = fcu)) +
-  geom_hline(yintercept = 0, color = "grey75", size = .3) +
-  geom_vline(xintercept = 0, color = "grey75", size = .3) +
+  geom_hline(yintercept = 0, color = "grey75", linewidth = .3) +
+  geom_vline(xintercept = 0, color = "grey75", linewidth = .3) +
   geom_errorbar(width = 0.5, size = .3) +
   geom_point(size = .4) +
   scale_colour_gradient(low = "#e41a1c", high = "#377eb8", guide = "colourbar",
@@ -79,7 +79,7 @@ g2 <- ggplot( data = df_ints, aes(x = fcu, y = mad_mid, ymax = mad_hi, ymin = ma
                      labels = seq(-10,10,2), limits = c(-10.5,10.5)) +
   scale_x_continuous(breaks = df_ints$fcu,
                      labels = df_ints$fcu) +
-  ylab("MAD-FC") + xlab("Fold Change Units") +
+  ylab("FC") + xlab("Fold Change Units") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2

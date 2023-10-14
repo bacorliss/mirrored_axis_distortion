@@ -51,24 +51,21 @@ res <- results(dds,
 # Perform shrinkage of dispersion estimates to refine log2 fold changes estimates
 res <- lfcShrink(dds,
                  contrast = c('dex','trt','untrt'), res=res, type = 'normal')
-# Fold changes were calcualted from 
-res$FoldChange <- 2^res$log2FoldChange
 
 
 
 # Convert DESeq data to dataframe for plotting with ggplot
 df_gene <- data.frame( name = rownames(res), baseMean = res$baseMean, 
                        log2FoldChange = res$log2FoldChange, 
-                       FoldChange = 2^res$log2FoldChange, pvalue = res$pvalue)
-df_gene$diffexpressed <- "None"
-# if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
-df_gene$diffexpressed[df_gene$log2FoldChange > 1 & df_gene$pvalue < 0.05] <- "Up"
-# if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
-df_gene$diffexpressed[df_gene$log2FoldChange < -1 & df_gene$pvalue < 0.05] <- "Down"
+                       FoldChange = 2^res$log2FoldChange, padj = res$padj)
+df_gene$diffexpressed <- "NS"
+# if log2Foldchange > 1and pvalue < 0.1, set as "UP" 
+df_gene$diffexpressed[df_gene$log2FoldChange > 1 & df_gene$padj < 0.1] <- "Up"
+# if log2Foldchange < -1 and pvalue < 0.1, set as "DOWN"
+df_gene$diffexpressed[df_gene$log2FoldChange < -1 & df_gene$padj < 0.1] <- "Down"
 
-df_gene$diffexpressed <- factor(df_gene$diffexpressed, ordered = TRUE, levels = c("Up", "None", "Down"))
+df_gene$diffexpressed <- factor(df_gene$diffexpressed, ordered = TRUE, levels = c("Up", "NS", "Down"))
 df_gene$mcFoldChange <- contract1(fc_to_mfc(df_gene$FoldChange))
-
 
 
 
@@ -113,7 +110,7 @@ g3 <- ggplot(data = df_gene, aes(x = baseMean, y = mcFoldChange)) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   scale_y_continuous(breaks = c(-10, 0, 10, 20)) +
   theme_classic(base_size = 8) + 
-  ylab("MAD-FC") +
+  ylab("FC") +
   xlab("Normalized Mean Count") +
   theme(legend.position = "none")     
 g3

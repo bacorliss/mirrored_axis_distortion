@@ -21,9 +21,9 @@ ggsize <- c(2,2)
 library(ggpubr)
 
 
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install(version = "3.16")
+# if (!require("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install(version = "3.16")
 
 
 # Install the main RTCGA package
@@ -73,7 +73,7 @@ dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
 g0 <- ggplot(data = df_exp, aes(x = Gene, y = log2_fc, color = dataset)) +
   geom_hline(yintercept = 0, size = .3, color = "grey70") +
   geom_violin(scale = "width", size =.2) +
-  ylab(expression(log[2]~FC)) + xlab("Gene Name") +
+  ylab(expression(log[2]~(FC))) + xlab("Gene Name") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g0
@@ -99,7 +99,7 @@ g2 <- ggplot(data = df_exp, aes(x = Gene, y = mad_fc, color = dataset)) +
   geom_violin(scale = "width", size = .2) +
   scale_y_continuous(breaks = seq(-60,60,20),
                      labels = seq(-60,60,20)) +
-  ylab("MAD-FC") + xlab("Gene Name") +
+  ylab("FC") + xlab("Gene Name") +
   theme_classic(base_size = 8) + 
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2

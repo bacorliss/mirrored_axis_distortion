@@ -35,7 +35,7 @@ g0 <- ggplot(df_fc, aes(x=factor(x), y=log2_fc, color = x)) +
   geom_violin(scale = "width", size =.2) +
   scale_colour_gradient(low = "#e41a1c", high = "#377eb8", guide = "colourbar",
                         aesthetics = "colour") +
-  ylab(expression(log[2]~FC)) + xlab("Fold Change Units") +
+  ylab(expression(log[2]~(FC))) + xlab("Fold Change Units") +
   theme_classic(base_size = 8) +
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g0
@@ -65,7 +65,7 @@ g2 <- ggplot(df_fc, aes(x=factor(x), y=mad_fc, color = x)) +
   geom_violin(scale = "width", size =.2) +
   scale_colour_gradient(low = "#e41a1c", high = "#377eb8", guide = "colourbar",
                         aesthetics = "colour") +
-  ylab("MAD-FC") + xlab("Fold Change Units") +
+  ylab("FC") + xlab("Fold Change Units") +
   theme_classic(base_size = 8) +
   theme(panel.grid.minor = element_blank(),legend.position = "none")
 g2

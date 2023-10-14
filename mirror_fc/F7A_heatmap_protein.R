@@ -26,12 +26,7 @@ lapply(biocm_packages, library, character.only = TRUE)
 source("R/mirrored_axis_distortion.R")
 
 
-
-
-
-# The data is provided with the package 
-data <- UbiLength
-# Linear visualization
+# Code Initialization
 base_dir = "mirror_fc"
 fig_num = "7" 
 fig_path = paste(base_dir,"/figure/F",fig_num, sep="")
@@ -39,35 +34,35 @@ dir.create(fig_path, showWarnings = FALSE, recursive = TRUE)
 ggsize <- c(2.25,5)
 
 
-
-
+# The data is provided with the package 
+data <- UbiLength
 experimental_design <- UbiLength_ExpDesign
 
-# The wrapper function performs the full analysis
+# The wrapper function performs the full analysis on dataset
 data_results <- LFQ(data, experimental_design, fun = "MinProb", 
                     type = "control", control = "Ctrl", alpha = 0.05, lfc = 1)
 
 
-
-# Extract the results table
+# Extract the results table from the LFQ analysis
 results_table <- data_results$results
-
-# Number of significant proteins
-# results_table %>% filter(significant) %>% nrow()
 
 
 # Extract the sign object
 full_data <- data_results$dep
 
-# Use the full data to generate a heatmap
-heatmap_fc <-plot_heatmap(full_data, type = "contrast", kmeans = TRUE, 
+# Use the full data to generate a heatmap of fold changes
+heatmap_fc <- plot_heatmap(full_data, type = "contrast", kmeans = TRUE, 
              k = 6, col_limit = 4, show_row_names = FALSE)
-
+# Extract fold changes from heatmap
 mx_log2_fc <- heatmap_fc@ht_list$`log2 Fold change`@matrix
 mx_fc <- 2^mx_log2_fc
-
 mx_mad_fc <- mx_fc
 mx_mad_fc[] <- vapply(mx_mad_fc, function(x) contract1(fc_to_mfc(x)), numeric(1))
+
+
+# df_expr <- results_table %>% select(ends_with("_ratio")) 
+# rownames(df_expr) <- results_table$name
+# colnames(df_expr) <- str_replace(colnames(df_expr),"_vs_Ctrl_ratio","")
 
 
 df_log2 <- as.data.frame(melt(mx_log2_fc, varnames=c('Gene', 'Sample'), value.name = "y"))
@@ -129,12 +124,6 @@ g2 <- ggplot(data = saturate(df_lin,'y',1/16,16), aes(x=Sample, y= Gene, fill = 
                        guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
                                               barwidth = grid::unit(.6, "npc"),
                                               barheight = grid::unit(.025, "npc")),) +
-  # scale_fill_gradient2(name = "FC", limits = c(0,16), 
-  #                      low = "#377eb8", mid = "white", high = "#e41a1c",midpoint = 1,
-  #                      breaks = c(0, 1, 4, 8, 16),
-  #                      guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
-  #                                             barwidth = grid::unit(.6, "npc"), 
-  #                                             barheight = grid::unit(.025, "npc")),) +
   theme_classic(base_size = 8) +
   theme(legend.position="top")
 g2
@@ -146,7 +135,7 @@ save_plot(paste(fig_path, '/', "heatmap_protein_B_fc.jpg", sep = ""),
 g3 <- ggplot(data = saturate(df_mad,'y',-16,16), aes(x=Sample, y= Gene, fill = y)) + 
   geom_tile() +
   scale_y_discrete("", labels = gene_sublist) + 
-  scale_fill_gradientn(name = "MAD-FC", limits = c(-16,16), 
+  scale_fill_gradientn(name = "FC", limits = c(-16,16), 
                        colors=c("#377eb8", "white", "#e41a1c"),
                        breaks = c(-15,-7, 0, 7, 15), labels = mad_fc_labeller,
                        guide = guide_colorbar(title.position = "top", title.hjust = 0.5,

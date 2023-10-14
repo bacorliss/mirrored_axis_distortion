@@ -3,6 +3,9 @@
 # Dataset: Airway package in bioconductor
 # Citation: https://pubmed.ncbi.nlm.nih.gov/24926665/
 
+# This code is appropriated from the introduction vignette for DESeq2
+# https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+
 
 # Install required Base Packages
 base_packages <- c("magrittr", "ggplot2", "tidyverse", "cowplot","BiocManager")
@@ -42,38 +45,32 @@ airway <- airway[keep,]
 
 # Calculate fold change
 dds <- DESeqDataSet(airway, design = ~ cell + dex)
-dds <- DESeq(dds, betaPrior=FALSE)
+dds <- DESeq(dds)
 res <- results(dds,
                contrast = c('dex','trt','untrt'))
 res <- lfcShrink(dds,
                  contrast = c('dex','trt','untrt'), res=res, type = 'normal')
-res$FoldChange <- 2^res$log2FoldChange
 
 
-
-
-
-
-
-df_gene <- data.frame( name = rownames(res), log2FoldChange = res$log2FoldChange, 
-                       FoldChange = 2^res$log2FoldChange, pvalue = res$pvalue)
-df_gene$diffexpressed <- "None"
+df_res <- as.data.frame(res)
+df_res$Change <- "NS"
 # if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
-df_gene$diffexpressed[df_gene$log2FoldChange > 1 & df_gene$pvalue < 0.05] <- "Up"
+df_res$Change[df_res$log2FoldChange > 1 & df_res$pvalue < 0.1] <- "Up"
 # if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
-df_gene$diffexpressed[df_gene$log2FoldChange < -1 & df_gene$pvalue < 0.05] <- "Down"
-
-df_gene$diffexpressed <- factor(df_gene$diffexpressed, ordered = TRUE, levels = c("Up", "None", "Down"))
-df_gene$mcFoldChange <- contract1(fc_to_mfc(df_gene$FoldChange))
+df_res$Change[df_res$log2FoldChange < -1 & df_res$pvalue < 0.1] <- "Down"
+df_res$Change <- factor(df_res$Change, ordered = TRUE, levels = c("Up", "NS", "Down"))
+df_res$FoldChange <- 2^df_res$log2FoldChange
+df_res$mcFoldChange <- contract1(fc_to_mfc(df_res$FoldChange))
 
 
 
 # Log2 Plot
-g1 <- ggplot(data=df_gene, aes(x=log2FoldChange, y=-log10(pvalue))) +
-  geom_vline(xintercept = 0, color = "grey") +
-  geom_point(aes(col=diffexpressed), size = 0.5, alpha = 0.6, shape = 16) +
+g1 <- ggplot(data=df_res, aes(x=log2FoldChange, y=-log10(pvalue))) +
+  geom_vline(xintercept = 0, color = "gray") +
+  geom_point(aes(col=Change), size = 0.5, alpha = 0.6, shape = 16) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
+  scale_y_continuous(expand = c(0,0)) +
   theme_classic(base_size = 8) + 
   ylab(expression(-log[10]~(`p-value`))) +
   xlab(expression(log[2]~(FC))) +
@@ -85,11 +82,12 @@ save_plot(paste(fig_path, '/', "A_volcano_log2.png", sep = ""),
 
 
 # Fold Change Linear Plot
-g2 <- ggplot(data=df_gene, aes(x=FoldChange, y=-log10(pvalue))) +
-  geom_vline(xintercept = 1, color = "grey") +
-  geom_point(aes(col=diffexpressed), size = 0.5, alpha = 0.6, shape = 16) +
+g2 <- ggplot(data=df_res, aes(x=FoldChange, y=-log10(pvalue))) +
+  geom_vline(xintercept = 1, color = "gray") +
+  geom_point(aes(col=Change), size = 0.5, alpha = 0.6, shape = 16) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
+  scale_y_continuous(expand = c(0,0)) +
   theme_classic(base_size = 8)   +
   ylab(expression(-log[10]~(`p-value`))) +
   xlab("FC") +
@@ -101,14 +99,14 @@ save_plot(paste(fig_path, '/', "B_volcano_FC.png", sep = ""),
 
 
 # MAD Fold Change Linear Plot
-g3 <- ggplot(data=df_gene, aes(x=mcFoldChange, y=-log10(pvalue))) +
-  geom_vline(xintercept = 0, color = "grey") +
-  geom_point(aes(col=diffexpressed), size = 0.5, alpha = 0.6, shape = 16) +
+g3 <- ggplot(data=df_res, aes(x=mcFoldChange, y=-log10(pvalue))) +
+  geom_vline(xintercept = 0, color = "gray") +
+  geom_point(aes(col=Change), size = 0.5, alpha = 0.6, shape = 16) +
   scale_color_manual(values=c("blue", "black", "red"), name = "Change") +
   coord_cartesian(clip = "off") +
   theme_classic(base_size = 8) +
   ylab(expression(-log[10]~(`p-value`))) +
-  xlab("MAD-FC") +
+  xlab("FC") +
   theme(legend.position = "none") +
   scale_x_continuous(breaks=c(c(-9, - 4, 0, seq(4,30,5))), expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0))

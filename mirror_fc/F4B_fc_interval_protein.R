@@ -40,11 +40,11 @@ g1 <- ggplot(data = df,aes(x=label, y = log2_mid, color = color)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=7),
         legend.position = "none"
   ) +
-  scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c("#1b9e77", "#d95f02", "#7570b3")) +
-  scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c(18, 15, 17)) +
-  # scale_y_continuous(expand = c(0,0)) +
-  # coord_cartesian(ylim = c(-4,2)) +
-  xlab("") + ylab("Log2(FC)")
+  scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"),
+                     values = c("#1b9e77", "#d95f02", "#7570b3")) +
+  scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
+                     values = c(18, 15, 17)) +
+  xlab("") + ylab(expression(log[2]~(FC)))
 g1
 save_plot(paste(fig_path, '/', "A_gene-int_log2.png", sep = ""),
           g1, dpi = 600, base_height = ggsize[1], 
@@ -89,11 +89,13 @@ g3 <- ggplot(data = df,aes(x=label, y = mfc_mid, color = color)) +
         legend.box.just = "right",
         legend.margin = margin(6, 6, 6, 6)
   ) +
-  scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c("#1b9e77", "#d95f02", "#7570b3")) +
-  scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), values = c(18, 15, 17)) +
+  scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
+                     values = c("#1b9e77", "#d95f02", "#7570b3")) +
+  scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
+                     values = c(18, 15, 17)) +
   # scale_y_continuous(expand = c(0,0)) +
   # coord_cartesian(ylim = c(-9,3)) +
-  xlab("") + ylab("MAD-FC")
+  xlab("") + ylab("FC")
 g3
 g3 <- gg_revaxis_mfc(g3,'y', num_format = "fraction")
 g3
