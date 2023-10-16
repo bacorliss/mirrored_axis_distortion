@@ -1,7 +1,7 @@
 ---
 title: Volcano Plots with Mirrored Axis Transfrom of Fold Change (MAD-FC)
-author: Bruce Corliss
-date: 10/13/2023
+author: 
+date: 
 output: 
   html_document:
     toc: true # table of content true
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
 
 ```
 
-![](media/banner.png)
+![](../media/cover.JPG)
 
 # Introduction
 
@@ -245,3 +245,5 @@ g3
 ```{r}
 sessionInfo()
 ```
+
+Bruce Corliss, 10/16/2023
