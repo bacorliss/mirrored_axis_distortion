@@ -1,5 +1,5 @@
 ---
-title: Errorbar Plots using Mirrored Axis Distortion of Fold Change (MAD-FC) Transform
+title:Heatmaps using Mirrored Axis Distortion of Fold Change (MAD-FC) Transform
 author: Bruce Corliss
 date: 10/14/2023
 output: 
@@ -28,7 +28,7 @@ knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
 
 # Introduction
 
-This vignette illustrates how to use a MAD-FC transform to visualize fold change measurements in a plot with interval estimates of uncertainty. We will compare visualizing the same data with a linear, log2, and MAD-FC transform. Each of these transforms exhibit different characteristics and emphasizes different aspects of the data, so much so that at first glance it appears that each of these plots are of different datasets.
+This vignette illustrates how to use a MAD-FC transform to visualize fold change measurements in heatmaps. We will compare visualizing the same data with a linear, log2, and MAD-FC transform. Each of these transforms exhibit different characteristics and emphasizes different aspects of the data, so much so that at first glance it appears that each of these plots are of different datasets.
 
 
 _Reference for MAD-FC_
@@ -37,24 +37,29 @@ B. A. Corliss, Y. Wang, F. P. Driscoll, H. Shakeri, P. E. Bourne, MAD-FC: A Fold
 
 # Dataset and Code Sources
 
-__Dataset Availability:__ This vignette uses a datapoints that were visually extracted from Figure 6a from the following publication:  
-O’Shea J., Cremona M., Morgan C., Milewska M., Holmes F., Espina V., Liotta L., O’Shaughnessy J., Toomey S., Madden S. F., Carr A., Elster N., Hennessy B. T., et al A preclinical evaluation of the MEK inhibitor refametinib in HER2-positive breast cancer cell lines including those with acquired resistance to trastuzumab or lapatinib. Oncotarget. 2017; 8: 85120-85135. [doi.org/10.18632/oncotarget.19461](doi.org/10.18632/oncotarget.19461).
+__Dataset Availability:__ This vignette uses from the UbiLength dataset in the DEP package from Zhang et all.
 
-Datapoints were visualy extracted from [WebPLotDigitizer](https://automeris.io/WebPlotDigitizer/).
+Zhang, Smits, van Tilburg, et al (2017). An interaction landscape of ubiquitin signaling. Molecular Cell 65(5): 941-955. doi: 10.1016/j.molcel.2017.01.004.
 
 # Package Dependencies
-__Primary Packages:__ *tidyverse*
+__Primary Packages:__ *tidyverse, BiocManager, DESeq2, DEP*
 
 The MAD-FC source file is also required (mirrored_axis_distortion.R)
 
 
 ```{r, results = "hide"}
 # Install required Base Packages
-base_packages <- c("cowplot", "tidyverse")
+base_packages <- c("tidyverse","BiocManager")
 install.packages(setdiff(base_packages, rownames(installed.packages())))  
+# Install required Bioconductor Packages
+biocm_packages <- c("DESeq2", "DEP")
+bioc_installs <- setdiff(biocm_packages, rownames(installed.packages()))
+if (length(bioc_installs)) {BiocManager::install(bioc_installs) }
 
 # Load base packages
 lapply(base_packages, library, character.only = TRUE)
+# Load Bioconductor packages packages
+lapply(biocm_packages, library, character.only = TRUE)
 source(paste0(dirname(getwd()), "/R/mirrored_axis_distortion.R"))
 ```
   
@@ -62,28 +67,68 @@ source(paste0(dirname(getwd()), "/R/mirrored_axis_distortion.R"))
 
 We processing the data with the following steps:
 
-1. Loading the airway dataset.
-2. Convert Airway dataset to a DESeq dataset (Enforces non-negative integer values in counts matrix, and an experiment formula).
-2. Perform differential expression analysis based on the Negative Binomial distribution.
-3. Extract results.
-4. Perform shrinkage of effect size, which reduced noise in lowly expressed genes with high variability.
-Calculating log2 fold changes, and then refining with shrinkage of effect size.
+1. Loading the UbiLength dataset.
+2. Analyze dataset with Differential Enrichment analysis of Proteomics data from standard workflow in DEP package.
+3. Plot data in default heatmap that identifies interesting genes.
+4. Extract which sub group of genes and their order from the plot.
+
 
 ```{r}
-# Load data from csv file
-df0 <- read.csv(paste0(getwd(), "/data/protein_expression_John O’Shea.csv"))
-df <- pivot_longer(df0,cols = -c("X", "label"), 
-                   names_to = "color_pt",values_to = "fc") %>% 
-  separate(color_pt, c("color", "pt"), '_') %>%
-  pivot_wider(names_from = pt, values_from = fc)
+# The data is provided with the package 
+data <- UbiLength
+experimental_design <- UbiLength_ExpDesign
 
-df$log2_hi <- log2(df$hi)
-df$log2_mid <- log2(df$mid)
-df$log2_lo <- log2(df$lo)
+# The wrapper function performs the full analysis on dataset
+data_results <- LFQ(data, experimental_design, fun = "MinProb", 
+                    type = "control", control = "Ctrl", alpha = 0.05, lfc = 1)
 
-df$mfc_hi <- contract1(fc_to_mfc(df$hi))
-df$mfc_mid <- contract1(fc_to_mfc(df$mid))
-df$mfc_lo <- contract1(fc_to_mfc(df$lo))
+# Extract the results table from the LFQ analysis
+results_table <- data_results$results
+
+# Extract the sign object
+full_data <- data_results$dep
+# Used a gene expression heatmap function with specialized algorithm for visualizing most interesting genes.
+heatmap_fc <- plot_heatmap(full_data, type = "contrast", kmeans = TRUE,
+             k = 6, col_limit = 4, show_row_names = FALSE)
+# Extract fold changes from heatmap
+def_heatmap <- heatmap_fc@ht_list$`log2 Fold change`@matrix
+
+```
+
+
+5. Obtain the data log2 fold change data from same genes, directly from experiment data
+7. Convert the data frame to long format for ggplot2.
+8. Label in 1 in 10 genes on the y axis.
+9. Define a function that saturates data values for plotting purposes.
+
+```{r}
+# Extracted log fold changes from results
+df_expr <- results_table %>% select(ends_with("_ratio"))
+# Added gene names as seprate column
+df_expr$Gene <- results_table$name
+# Removed extra text from sample columns
+colnames(df_expr) <- str_replace(colnames(df_expr),"_vs_Ctrl_ratio","")
+# Discarded genes not included in default heatmap
+df_sub <- df_expr[df_expr$Gene %in% rownames(def_heatmap),]
+# Converted genes to factor to ensure same gene order as in default heatmap
+df_sub$Gene <- factor(df_sub$Gene, ordered = TRUE, levels = rownames(def_heatmap))
+# COnverted wide dataset to long
+df_sub <- pivot_longer(df_sub,cols = -Gene, names_to = "Sample", values_to = "log2FC")
+
+# Added columsn for FC and madFC
+df_sub$FC <- 2^ df_sub$log2FC
+df_sub$madFC <- contract1(fc_to_mfc(df_sub$FC))
+
+# Only label 1 in 10 genes
+gene_list <- rownames(def_heatmap)
+gene_sublist <- rep(" ",length(gene_list))
+gene_sublist[seq(1,length(gene_list), 10)] <- gene_list[seq(1,length(gene_list), 10)]
+
+saturate <- function(df, colname,lo, hi) {
+  df[[colname]][df[[colname]]<lo] <- lo
+  df[[colname]][df[[colname]]>hi] <- hi
+  return(df)
+}
 
 ```
   
@@ -91,58 +136,52 @@ df$mfc_lo <- contract1(fc_to_mfc(df$lo))
 # Visualization
   
   
-We now will visualize the same dataset with an errorbar plot where fold changes are linear, log2, and MAD-FC transformed. Each type of transform has unique characteristics for how it displays the fold change values.
+We now will visualize the same dataset with heatmaps where fold changes are linear, log2, and MAD-FC transformed. Each type of transform has unique characteristics for how it displays the fold change values.
 
 ## Linear Errorbar Plot
 
-We first produce an errorbar plot where fold changes are mapped to a linear scale (raw fold change units, y-axis). Notice that with this plot, negative fold changes are compressed between [0,1) and positive fold changes are between (1,inf). This limits the linear plot's usefulness in comparing the datapoints and intervals between positive and negative fold change values.
+We first produce a heatmap where fold changes are mapped to a linear scale (raw fold change units, y-axis). Notice that with this plot, negative fold changes are compressed between [0,1) and positive fold changes are between (1,inf). This limits the linear plot's usefulness in comparing the datapoints and intervals between positive and negative fold change values.
 
 ```{r, out.width="50%", fig.align = 'center'}
 # Fold Change Linear Plot
-g1 <- ggplot(data = df,aes(x=label, y = mid, color = color)) +
-  geom_hline(yintercept = 1, color = "grey") +
-  geom_hline(yintercept = c(1.2, 0.8), color = "grey", linetype = "dashed") +
-  geom_errorbar(aes(ymax = hi, ymin = lo), linewidth = .8, width = .8, 
-                position=position_dodge(width = 0.6), alpha = 1) + 
-  geom_point(size = .8,position=position_dodge(width = 0.6),alpha = 1) +
-  theme_classic(base_size = 8) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=7),
-          legend.position = "none", legend.justification = c("right", "top"),
-          legend.box.just = "right", legend.margin = margin(6, 6, 6, 6)
-        ) +
-  scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
-                     values = c("#1b9e77", "#d95f02", "#7570b3")) +
-  scale_y_continuous(breaks=seq(0,3,.5)) +
-  xlab("") + ylab("FC")
+# Log2 FC plot
+g1 <- ggplot(data = saturate(df_sub,'log2FC',-4,4), aes(x=Sample, y= Gene, fill = log2FC)) + 
+  geom_tile() +
+  scale_y_discrete("", labels = gene_sublist) +
+  scale_fill_gradientn(name = expression(log[2](FC)),limits = c(-4,4),
+                       colors=c("#377eb8", "white", "#e41a1c"),
+                       # breaks = c(-15,-7, 0, 7, 15), labels = mad_fc_labeller,
+                       guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
+                                              barwidth = grid::unit(.6, "npc"),
+                                              barheight = grid::unit(.025, "npc")),) +
+  theme_classic(base_size = 8) +
+  theme(legend.position="top")
 g1
 ```
   
 ## Log Errorbar plot
 
-Next we produce a Errorbar plot of the same data where fold changes are mapped to a log2 scale (raw fold change units). Log plots exhibit symmetry with positive and negative fold changes, allowing them to be compared based on their relative position to zero on the log scale (the point of no change). However, the non-linearity of the log transform makes it difficult to compare the magnitude of datapoints and intervals among collections of positive fold change data points (and separately, negative fold changes). It is also difficult to recover the original fold change value prior to the log transform.
+Next we produce a heatmap of the same data where fold changes are mapped to a log2 scale (raw fold change units). Log plots exhibit symmetry with positive and negative fold changes, allowing them to be compared based on their relative position to zero on the log scale (the point of no change). However, the non-linearity of the log transform makes it difficult to compare the magnitude of datapoints and intervals among collections of positive fold change data points (and separately, negative fold changes). It is also difficult to recover the original fold change value prior to the log transform.
 
 ```{r, out.width="50%", fig.align = 'center'}
-# FOld Change Log2 Plot
-g2 <- ggplot(data = df,aes(x=label, y = log2_mid, color = color)) +
-  geom_hline(yintercept = 0, color = "grey") +
-  geom_hline(yintercept = c(-.26, 0.26), color = "grey", linetype = "dashed") +
-  geom_errorbar(aes(ymax = log2_hi, ymin = log2_lo), linewidth = .8, width = .8, 
-                position=position_dodge(width = 0.6), alpha = 1) + 
-  geom_point(size = .8,position=position_dodge(width = 0.6),alpha = 1) +
-  theme_classic(base_size = 8) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=7),
-        legend.position = "none") +
-  scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"),
-                     values = c("#1b9e77", "#d95f02", "#7570b3")) +
-  scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
-                     values = c(18, 15, 17)) +
-  xlab("") + ylab(expression(log[2]~(FC)))
+# Fold Change Log2 Plot
+g2 <- ggplot(data = saturate(df_sub,'FC',1/16,16), aes(x=Sample, y= Gene, fill = FC)) + 
+  geom_tile() +
+  scale_y_discrete("", labels = gene_sublist) + 
+  scale_fill_gradientn(name = "FC", limits = c(0,16),
+                       colors=c("#377eb8", "white", "#e41a1c"), values=c(0, .75/16, 1.25/16, 1),
+                       breaks = c(0,-1/16,1, 4,8,12,16),
+                       guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
+                                              barwidth = grid::unit(.6, "npc"),
+                                              barheight = grid::unit(.025, "npc")),) +
+  theme_classic(base_size = 8) +
+  theme(legend.position="top")
 g2
  
 ```
   
 ## MAD Errorbar Plot
-Finally we produce a Errorbar plot of the same data where fold changes are mapped to a MAD-FC scale (linear fold change units with negative fold change scale distorted to match the scale of positive fold changes). MAD plots are symmetrical and linear by design, making it easier to compare datapoints and intervals regardless of fold change direction. The linear mapping also makes it easy to recover the original datapoint position from the plot.
+Finally we produce a heatmap of the same data where fold changes are mapped to a MAD-FC scale (linear fold change units with negative fold change scale distorted to match the scale of positive fold changes). MAD plots are symmetrical and linear by design, making it easier to compare datapoints and intervals regardless of fold change direction. The linear mapping also makes it easy to recover the original datapoint position from the plot.
 
 To create a MAD plot, first create a linear plot like above, and then call the function.
 gg_rev_axis_mfc(gg, axes, num_format)
@@ -151,22 +190,17 @@ This function extracts the axis labels from the gg plot object and reverses the 
 
 ```{r, out.width="50%", fig.align = 'center'}
 # MAD Fold Change Plot
-g3 <- ggplot(data = df,aes(x=label, y = mfc_mid, color = color)) +
-  geom_hline(yintercept = 0, color = "grey") +
-  geom_hline(yintercept = c(.2, -0.2), color = "grey", linetype = "dashed") +
-  geom_errorbar(aes(ymax = mfc_hi, ymin = mfc_lo), linewidth = .8, width = .8, 
-                position=position_dodge(width = 0.6), alpha = 1) + 
-  geom_point(size = .8,position=position_dodge(width = 0.6),alpha = 1) +
-  theme_classic(base_size = 8) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size=7),
-        legend.position = "none", legend.justification = c("right", "top"),
-        legend.box.just = "right", legend.margin = margin(6, 6, 6, 6) ) +
-  scale_color_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
-                     values = c("#1b9e77", "#d95f02", "#7570b3")) +
-  scale_shape_manual(name = "Treatment", labels = c("MEKi", "PI3Ki", "MEKI:PI3Ki"), 
-                     values = c(18, 15, 17)) +
-  xlab("") + ylab("FC")
-g3 <- gg_revaxis_mfc(g3,'y', num_format = "fraction")
+g3 <- ggplot(data = saturate(df_sub,'madFC',-16,16), aes(x=Sample, y= Gene, fill = madFC)) + 
+  geom_tile() +
+  scale_y_discrete("", labels = gene_sublist) + 
+  scale_fill_gradientn(name = "FC", limits = c(-16,16), 
+                       colors=c("#377eb8", "white", "#e41a1c"),
+                       breaks = c(-15,-7, 0, 7, 15), labels = mad_fc_labeller,
+                       guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
+                                               barwidth = grid::unit(.6, "npc"), 
+                                              barheight = grid::unit(.025, "npc")),) +
+  theme_classic(base_size = 8) +
+  theme(legend.position="top")
 g3
 
 ```

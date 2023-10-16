@@ -12,7 +12,7 @@
 
 
 # Install required Base Packages
-base_packages <- c("tidyverse", "cowplot","BiocManager", "reshape2")
+base_packages <- c("tidyverse", "cowplot","BiocManager")
 install.packages(setdiff(base_packages, rownames(installed.packages())))  
 # Install required Bioconductor Packages
 biocm_packages <- c("DESeq2", "DEP")
@@ -44,7 +44,6 @@ data_results <- LFQ(data, experimental_design, fun = "MinProb",
 
 # Extract the results table from the LFQ analysis
 results_table <- data_results$results
-
 
 # Extract the sign object
 full_data <- data_results$dep
