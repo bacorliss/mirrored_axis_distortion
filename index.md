@@ -1,5 +1,7 @@
 ## Mirrored Axis Distortion (MAD) Transform and Visualizations
 
+![\MAD Cover Image](/media/cover.JPG)
+
 ---
 
 ### Introduction
