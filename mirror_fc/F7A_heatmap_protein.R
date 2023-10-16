@@ -42,37 +42,35 @@ experimental_design <- UbiLength_ExpDesign
 data_results <- LFQ(data, experimental_design, fun = "MinProb", 
                     type = "control", control = "Ctrl", alpha = 0.05, lfc = 1)
 
-
 # Extract the results table from the LFQ analysis
 results_table <- data_results$results
 
 
 # Extract the sign object
 full_data <- data_results$dep
-
-# Use the full data to generate a heatmap of fold changes
+# Used a gene expression heatmap function with specialized algorithm for visualizing most interesting genes.
 heatmap_fc <- plot_heatmap(full_data, type = "contrast", kmeans = TRUE,
              k = 6, col_limit = 4, show_row_names = FALSE)
 # Extract fold changes from heatmap
-mx_log2_fc <- heatmap_fc@ht_list$`log2 Fold change`@matrix
-mx_fc <- 2^mx_log2_fc
-mx_mad_fc <- mx_fc
-mx_mad_fc[] <- vapply(mx_mad_fc, function(x) contract1(fc_to_mfc(x)), numeric(1))
+def_heatmap <- heatmap_fc@ht_list$`log2 Fold change`@matrix
 
 
+# Extracted log fold changes from results
 df_expr <- results_table %>% select(ends_with("_ratio"))
+# Added gene names as seprate column
 df_expr$Gene <- results_table$name
+# Removed extra characteris is sample (column) names
 colnames(df_expr) <- str_replace(colnames(df_expr),"_vs_Ctrl_ratio","")
-# Sebset same order
-df_sub <- df_expr[df_expr$Gene %in% rownames(mx_log2_fc),]
-df_sub$Gene <- factor(df_sub$Gene, ordered = TRUE, levels = rownames(mx_log2_fc))
+# Discarded genes not included in default heatmap
+df_sub <- df_expr[df_expr$Gene %in% rownames(def_heatmap),]
+# COnverted genes to factor to ensure same gene order as in default heatmap
+df_sub$Gene <- factor(df_sub$Gene, ordered = TRUE, levels = rownames(def_heatmap))
+# COnverted wide dataset to long
 df_sub <- pivot_longer(df_sub,cols = -Gene, names_to = "Sample", values_to = "log2FC")
 
-
+# Added columsn for FC and madFC
 df_sub$FC <- 2^ df_sub$log2FC
 df_sub$madFC <- contract1(fc_to_mfc(df_sub$FC))
-
-
 
 
 ggsize <- c(5,2.5)
@@ -82,11 +80,13 @@ saturate <- function(df, colname,lo, hi) {
   return(df)
 }
 
-gene_list <- rownames(mx_log2_fc)
+# Only label 1 in 10 genes
+gene_list <- rownames(def_heatmap)
 gene_sublist <- rep(" ",length(gene_list))
 gene_sublist[seq(1,length(gene_list), 10)] <- gene_list[seq(1,length(gene_list), 10)]
 
 
+# Log2 FC plot
 g1 <- ggplot(data = saturate(df_sub,'log2FC',-4,4), aes(x=Sample, y= Gene, fill = log2FC)) + 
   geom_tile() +
   scale_y_discrete("", labels = gene_sublist) +
@@ -103,8 +103,8 @@ save_plot(paste(fig_path, '/', "heatmap_protein_A_log2-fc.jpg", sep = ""),
           g1, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2]) 
 
-
-g2 <- ggplot(data = saturate(df_sub,'y',1/16,16), aes(x=Sample, y= Gene, fill = FC)) + 
+# Linear FC plot
+g2 <- ggplot(data = saturate(df_sub,'FC',1/16,16), aes(x=Sample, y= Gene, fill = FC)) + 
   geom_tile() +
   scale_y_discrete("", labels = gene_sublist) + 
   scale_fill_gradientn(name = "FC", limits = c(0,16),
@@ -120,8 +120,8 @@ save_plot(paste(fig_path, '/', "heatmap_protein_B_fc.jpg", sep = ""),
           g2, dpi = 600, base_height = ggsize[1], 
           base_width = ggsize[2])  
 
-
-g3 <- ggplot(data = saturate(df_sub,'y',-16,16), aes(x=Sample, y= Gene, fill = madFC)) + 
+# MAD-FC plot
+g3 <- ggplot(data = saturate(df_sub,'madFC',-16,16), aes(x=Sample, y= Gene, fill = madFC)) + 
   geom_tile() +
   scale_y_discrete("", labels = gene_sublist) + 
   scale_fill_gradientn(name = "FC", limits = c(-16,16), 
