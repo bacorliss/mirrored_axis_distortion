@@ -12,7 +12,7 @@
 
 
 # Install required Base Packages
-base_packages <- c("ggplot2", "tidyverse", "cowplot","BiocManager", "reshape2")
+base_packages <- c("tidyverse", "cowplot","BiocManager", "reshape2")
 install.packages(setdiff(base_packages, rownames(installed.packages())))  
 # Install required Bioconductor Packages
 biocm_packages <- c("DESeq2", "DEP")
@@ -51,7 +51,7 @@ results_table <- data_results$results
 full_data <- data_results$dep
 
 # Use the full data to generate a heatmap of fold changes
-heatmap_fc <- plot_heatmap(full_data, type = "contrast", kmeans = TRUE, 
+heatmap_fc <- plot_heatmap(full_data, type = "contrast", kmeans = TRUE,
              k = 6, col_limit = 4, show_row_names = FALSE)
 # Extract fold changes from heatmap
 mx_log2_fc <- heatmap_fc@ht_list$`log2 Fold change`@matrix
@@ -60,31 +60,22 @@ mx_mad_fc <- mx_fc
 mx_mad_fc[] <- vapply(mx_mad_fc, function(x) contract1(fc_to_mfc(x)), numeric(1))
 
 
-# df_expr <- results_table %>% select(ends_with("_ratio")) 
-# rownames(df_expr) <- results_table$name
-# colnames(df_expr) <- str_replace(colnames(df_expr),"_vs_Ctrl_ratio","")
+df_expr <- results_table %>% select(ends_with("_ratio"))
+df_expr$Gene <- results_table$name
+colnames(df_expr) <- str_replace(colnames(df_expr),"_vs_Ctrl_ratio","")
+# Sebset same order
+df_sub <- df_expr[df_expr$Gene %in% rownames(mx_log2_fc),]
+df_sub$Gene <- factor(df_sub$Gene, ordered = TRUE, levels = rownames(mx_log2_fc))
+df_sub <- pivot_longer(df_sub,cols = -Gene, names_to = "Sample", values_to = "log2FC")
 
 
-df_log2 <- as.data.frame(melt(mx_log2_fc, varnames=c('Gene', 'Sample'), value.name = "y"))
-df_log2$Gene <- factor(df_log2$Gene, ordered = TRUE, levels = rownames(mx_log2_fc))
-levels(df_log2$Sample) <- c("Ubi1", "Ubi4", "ubi6")
+df_sub$FC <- 2^ df_sub$log2FC
+df_sub$madFC <- contract1(fc_to_mfc(df_sub$FC))
 
-df_lin <- as.data.frame(melt(mx_fc, varnames=c('Gene', 'Sample'), value.name = "y"))
-df_lin$Gene <- factor(df_lin$Gene, ordered = TRUE, levels = rownames(mx_log2_fc))
-levels(df_lin$Sample) <- c("Ubi1", "Ubi4", "ubi6")
-
-df_mad <- as.data.frame(melt(mx_mad_fc, varnames=c('Gene', 'Sample'), value.name = "y"))
-df_mad$Gene <- factor(df_mad$Gene, ordered = TRUE, levels = rownames(mx_log2_fc))
-levels(df_mad$Sample) <- c("Ubi1", "Ubi4", "ubi6")
-
-# heatmap.2(mx_log2_fc, dendrogram = "both",scale = "none", trace="none", 
-#           density.info="none", col="heat.colors")
 
 
 
 ggsize <- c(5,2.5)
-
-
 saturate <- function(df, colname,lo, hi) {
   df[[colname]][df[[colname]]<lo] <- lo
   df[[colname]][df[[colname]]>hi] <- hi
@@ -92,20 +83,18 @@ saturate <- function(df, colname,lo, hi) {
 }
 
 gene_list <- rownames(mx_log2_fc)
-gene_sublist <- rep("",length(gene_list))
+gene_sublist <- rep(" ",length(gene_list))
 gene_sublist[seq(1,length(gene_list), 10)] <- gene_list[seq(1,length(gene_list), 10)]
 
 
-
-
-g1 <- ggplot(data = saturate(df_log2,'y',-4,4), aes(x=Sample, y= Gene, fill = y)) + 
+g1 <- ggplot(data = saturate(df_sub,'log2FC',-4,4), aes(x=Sample, y= Gene, fill = log2FC)) + 
   geom_tile() +
-  scale_y_discrete("", labels = gene_sublist) + 
-  scale_fill_gradientn(name = expression(log[2](FC)),limits = c(-4,4), 
+  scale_y_discrete("", labels = gene_sublist) +
+  scale_fill_gradientn(name = expression(log[2](FC)),limits = c(-4,4),
                        colors=c("#377eb8", "white", "#e41a1c"),
                        # breaks = c(-15,-7, 0, 7, 15), labels = mad_fc_labeller,
                        guide = guide_colorbar(title.position = "top", title.hjust = 0.5,
-                                              barwidth = grid::unit(.6, "npc"), 
+                                              barwidth = grid::unit(.6, "npc"),
                                               barheight = grid::unit(.025, "npc")),) +
   theme_classic(base_size = 8) +
   theme(legend.position="top")
@@ -115,7 +104,7 @@ save_plot(paste(fig_path, '/', "heatmap_protein_A_log2-fc.jpg", sep = ""),
           base_width = ggsize[2]) 
 
 
-g2 <- ggplot(data = saturate(df_lin,'y',1/16,16), aes(x=Sample, y= Gene, fill = y)) + 
+g2 <- ggplot(data = saturate(df_sub,'y',1/16,16), aes(x=Sample, y= Gene, fill = FC)) + 
   geom_tile() +
   scale_y_discrete("", labels = gene_sublist) + 
   scale_fill_gradientn(name = "FC", limits = c(0,16),
@@ -132,7 +121,7 @@ save_plot(paste(fig_path, '/', "heatmap_protein_B_fc.jpg", sep = ""),
           base_width = ggsize[2])  
 
 
-g3 <- ggplot(data = saturate(df_mad,'y',-16,16), aes(x=Sample, y= Gene, fill = y)) + 
+g3 <- ggplot(data = saturate(df_sub,'y',-16,16), aes(x=Sample, y= Gene, fill = madFC)) + 
   geom_tile() +
   scale_y_discrete("", labels = gene_sublist) + 
   scale_fill_gradientn(name = "FC", limits = c(-16,16), 

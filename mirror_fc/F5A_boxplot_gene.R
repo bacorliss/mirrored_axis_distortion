@@ -8,7 +8,7 @@
 
 
 # Install required Base Packages
-base_packages <- c("ggplot2", "tidyverse", "cowplot","BiocManager","ggpubr")
+base_packages <- c("tidyverse", "cowplot","BiocManager","ggpubr")
 install.packages(setdiff(base_packages, rownames(installed.packages())))  
 # Install required Bioconductor Packages
 biocm_packages <- c("RTCGA", "RTCGA.mRNA")

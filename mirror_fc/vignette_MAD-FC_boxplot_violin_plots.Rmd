@@ -1,0 +1,229 @@
+---
+title: Boxplots and Violin Plots with Mirrored Axis Transfrom of Fold Change (MAD-FC)
+author: Bruce Corliss
+date: 10/13/2023
+output: 
+  html_document:
+    toc: true # table of content true
+    number_sections: true  ## if you want number sections at each table header
+    highlight: tango  # specifies the syntax highlighting style
+    theme: united 
+    toc_float: true
+    code_folding: show
+    toc_depth: 3  
+---
+
+<style type="text/css">
+h1.title { font-size: 24px;}
+h1 {font-size: 20px;}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
+
+```
+
+![](media/banner.png)
+
+# Introduction
+
+This vignette illustrates how to use a MAD-FC transform to visualize fold change measurements in boxplots and violin plots. MAD-FC is a new transform for fold changes that distorts linear fold change measurements to match the scale of positive fold change measurements. For more information, please refer to the publication.
+
+B. A. Corliss, Y. Wang, F. P. Driscoll, H. Shakeri, P. E. Bourne, MAD-FC: A Fold Change Visualization with Readability, Proportionality, and Symmetry (2023), [doi:10.48550/arXiv.2303.10829](doi:10.48550/arXiv.2303.10829).
+
+## Dataset and Code Sources
+
+__Dataset Availability:__ This vignette uses a dataset from the RTCGA and RTCGA.mRNA packages that is included with DESeq2.
+
+
+__Code Reference:__ 
+This tutorial uses code from the [introductory vignette](https://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) for DESeq2.
+"Analyzing RNA-seq data with DESeq2" by Michael I. Love, Simon Anders, and Wolfgang Huber.
+
+## Package Dependencies
+__Primary Packages:__ *tidyverse, cowplot, BiocManager, ggpubr*
+
+__Supporting Packages:__ *RTCGA, RTCGA.mRNA*
+
+The MAD-FC source file is also required (mirrored_axis_distortion.R)
+
+
+```{r, results = "hide"}
+# Install required Base Packages
+base_packages <- c("tidyverse", "cowplot","BiocManager","ggpubr")
+install.packages(setdiff(base_packages, rownames(installed.packages())))  
+# Install required Bioconductor Packages
+biocm_packages <- c("RTCGA", "RTCGA.mRNA")
+bioc_installs <- setdiff(biocm_packages, rownames(installed.packages()))
+if (length(bioc_installs)) {BiocManager::install(bioc_installs) }
+
+# Load base packages
+lapply(base_packages, library, character.only = TRUE)
+# Load Bioconductor packages packages
+lapply(biocm_packages, library, character.only = TRUE)
+source(paste0(dirname(getwd()), "/R/mirrored_axis_distortion.R"))
+```
+  
+---
+  
+# Data Analysis
+
+We processing the data with the following steps:
+
+1. Combine three different datasets from RTCGA and extract expression from five genes.
+2. Remove ".mRNA from the column that labels dataset source
+3. Convert the data set from wide format (column for each gene) to long format
+4. Calculate fold change value from log fold change measurements
+5. Calculated MAD-FC fold changes based on fold change measurements.
+
+```{r}
+# Extract expression for 5 genes: GATA3, PTEN, XBP1, ESR1 and MUC1 
+# From the BRCA.mRNA, OV.mRNA, LUSC.mRNA datasets
+expr <- expressionsTCGA(BRCA.mRNA, OV.mRNA, LUSC.mRNA,
+                        extract.cols = c("GATA3", "PTEN", "XBP1","ESR1", "MUC1"))
+expr$dataset <- gsub(pattern = ".mRNA", replacement = "",  expr$dataset)
+
+# Convert dataframe of RNA expresison from wide to long format
+df_exp <- expr %>% pivot_longer(cols = !c(bcr_patient_barcode, dataset), names_to = "Gene", values_to = "log2_fc")
+df_exp$fc <- 2^df_exp$log2_fc
+df_exp$mad_fc <- contract1(fc_to_mfc(df_exp$fc))
+head(df_exp)
+```
+  
+  
+---
+  
+# Visualization {.tabset}
+
+
+## Boxplots
+  
+  
+We now will visualize the same dataset with a boxplot where fold changes are linear, log2, and MAD-FC transformed. Each type of transform has unique characteristics for how it displays the fold change values.
+
+### Linear Boxplot
+
+We first produce a boxplot where fold changes are mapped to a linear scale (raw fold change units, y-axis). Notice that with this plot, negative fold changes are compressed between [0,1) and positive fold changes are between (1,inf). This limits the linear plot's usefulness in comparing the magnitude of the positive and negative fold change values.
+
+```{r, out.width="50%", fig.align = 'center'}
+# Fold Change Linear Plot
+# Linear FC Plot
+g1 <- ggplot(data = df_exp, aes(x = Gene, y = fc, color = dataset)) +
+  geom_hline(yintercept = 1, size = .3, color = "grey70") +
+  geom_boxplot(size =1, outlier.size = .3,outlier.alpha = 0.5) +
+  ylab("FC") + xlab("Gene Name") +
+  theme_classic(base_size = 16) + 
+  theme(panel.grid.minor = element_blank(),legend.position = "none")
+g1
+```
+  
+### Log Boxplot
+
+Next we produce a boxplot of the same data where fold changes are mapped to a log2 scale. Log plots exhibit symmetry between positive and negative fold changes, allowing them to be compared based on their relative position to zero on the log scale (the point of no change). However, the non-linearity of the log transform makes it difficult to compare the magnitude among collections of positive fold change data points and separately, negative fold changes. It is also difficult to recover the original fold change value before the log transform.
+
+```{r, out.width="50%", fig.align = 'center'}
+# Log FC Plot
+g2 <- ggplot(data = df_exp, aes(x = Gene, y = log2_fc, color = dataset)) +
+  geom_hline(yintercept = 0, size = .3, color = "grey70") +
+  geom_boxplot(size =1, outlier.size = .3,outlier.alpha = 0.5) +
+  ylab(expression(log[2]~(FC))) + xlab("Gene Name") +
+  theme_classic(base_size = 16) + 
+  theme(panel.grid.minor = element_blank(),legend.position = "none")
+g2
+```
+  
+### MAD Boxplot
+Finally we produce a boxplot of the same data where fold changes are mapped to a MAD-FC scale (raw fold change units with negative fold change scale distorted to match the positive fold change scale). MAD plots are symmetrical and linear by design, making it easier to compare datapoints with different fold change direction, datapoints with same direction. The linear mapping makes it easy to recover the original datapoint position from the plot.
+
+To create a MAD plot, first create a linear plot like above, and then call the function.
+gg_rev_axis_mfc(gg, axes, num_format)
+Where _gg_ is the ggplot object, _axis_ is the axis to be transformed, and _num_format_ is the format used for the plot tick labels.
+This function extracts the axis labels from the gg plot object and reverses the MAD-FC transform to display the original FC units.
+
+```{r, out.width="50%", fig.align = 'center'}
+# MAD FC Plot
+g3 <- ggplot(data = df_exp, aes(x = Gene, y = mad_fc, color = dataset)) +
+  geom_hline(yintercept = 1, size = .3, color = "grey70") +
+  geom_boxplot(size =1, outlier.size = .3,outlier.alpha = 0.5) +
+  scale_y_continuous(breaks = seq(-70,70,10),
+                     labels = seq(-70,70,10)) +
+  ylab("FC") + xlab("Gene Name") +
+  theme_classic(base_size = 16) + 
+  theme(panel.grid.minor = element_blank(),legend.position = "none")
+
+g3 <- gg_revaxis_mfc(g2,'y', num_format = "fraction")
+g3
+```
+
+
+## Violin Plots
+  
+We now will visualize the same dataset with a violin plot where fold changes are linear, log2, and MAD-FC transformed. Each type of transform has unique characteristics for how it displays the fold change values.
+
+### Linear Violin Plot
+  
+We first produce a violin plot where fold changes are mapped to a linear scale (raw fold change units, y-axis). Notice that with this plot, negative fold changes are compressed between [0,1) and positive fold changes are between (1,inf). This limits the linear plot's usefulness in comparing the magnitude of the positive and negative fold change values.
+
+```{r, out.width="50%", fig.align = 'center'}
+# Linear Plot
+g1 <- ggplot(data = df_exp, aes(x = Gene, y = fc, color = dataset)) +
+  geom_hline(yintercept = 1, color = "grey70") +
+  geom_violin(scale = "width", size = 1) +
+  ylab("FC") + xlab("Gene Name") +
+  theme_classic(base_size = 16) + 
+  theme(panel.grid.minor = element_blank(),legend.position = "none")
+g1
+```
+  
+### Log Violin Plot
+
+Next we produce a violin plot of the same data where fold changes are mapped to a log2 scale (raw fold change units). Log plots exhibit symmetry with positive and negative fold changes, allowing them to be compared based on their relative position to zero on the log scale (the point of no change). However, the non-linearity of the log transform makes it difficult to compare the magnitude among collections of positive fold change data points and separately, negative fold changes. It is also difficult to recover the original fold change value before the log transform.
+
+```{r, out.width="50%", fig.align = 'center'}
+# Log Plot
+g2 <- ggplot(data = df_exp, aes(x = Gene, y = log2_fc, color = dataset)) +
+  geom_hline(yintercept = 0, size = .3, color = "grey70") +
+  geom_violin(scale = "width", size =1) +
+  ylab(expression(log[2]~(FC))) + xlab("Gene Name") +
+  theme_classic(base_size = 16) + 
+  theme(panel.grid.minor = element_blank(),legend.position = "none")
+g2
+```
+  
+### MAD Violin Plot
+
+Finally we produce a violin plot of the same data where fold changes are mapped to a MAD-FC scale (raw fold change units with negative fold change scale distorted to match the positive fold change scale). MAD plots are symmetrical and linear by design, making it easier to compare datapoints with different fold change direction, datapoints with same direction. The linear mapping makes it easy to recover the original datapoint position from the plot.
+
+
+```{r, out.width="50%", fig.align = 'center'}
+# MAD-FC Plot
+g3 <- ggplot(data = df_exp, aes(x = Gene, y = mad_fc, color = dataset)) +
+  geom_hline(yintercept = 1, color = "grey70") +
+  geom_violin(scale = "width", size = 1) +
+  scale_y_continuous(breaks = seq(-60,60,20),
+                     labels = seq(-60,60,20)) +
+  ylab("FC") + xlab("Gene Name") +
+  theme_classic(base_size = 8) + 
+  theme(panel.grid.minor = element_blank(),legend.position = "none")
+
+g3 <- gg_revaxis_mfc(g2,'y', num_format = "fraction")
+g3
+```
+  
+To create a MAD plot, first create a linear plot like above, and then call the function.
+gg_rev_axis_mfc(gg, axes, num_format)
+Where _gg_ is the ggplot object, _axis_ is the axis to be transformed, and _num_format_ is the format used for the plot tick labels.
+This function extracts the axis labels from the gg plot object and reverses the MAD-FC transform to display the original FC units.
+TEST
+<br />  
+<br />  
+
+<hr style="border:2px solid gray">
+  
+
+# Session Information
+
+```{r}
+sessionInfo()
+```
