@@ -1,3 +1,15 @@
-theme: jekyll-theme-minimal
-name: ""
-title: null
+title: MAD-FC
+logo: "/images/logo.jpg?raw=true" # your photo (or logo) here
+description: > # your text below (remove <br> elements if you don't need line breaks)
+  A new transform for visualizing fold change datasets.
+  <br><br>
+  Currently a postdoctoral fellow at the School of Data Science in the University of Virginia. My research focuses on novel visualizations for bioinformatics data and developing an alternative to null hypothesis significance test p-vales for analyzing controlled experiments.
+  <br><br>
+  <a href="https://github.com/bacorliss/mirrored_axis_distortion">Github Repostiory</a> 
+  <br> <br>
+  <a href="https://arxiv.org/abs/2303.10829">MAD-FC Publication</a> 
+  
+remote_theme: pages-themes/minimal@v0.2.0
+plugins:
+- jekyll-remote-theme
+google_analytics: UA-000000-0 # your Google Analytics tracking ID here
