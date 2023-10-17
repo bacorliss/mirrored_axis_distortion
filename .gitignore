@@ -1,5 +1,5 @@
 
-*.jpg
+
 *.png
-/figure/*
+*/figure/*
 .Rhistory
