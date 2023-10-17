@@ -1,9 +1,7 @@
-title: MAD-FC
+title: MAD-FC Vignettes
 logo: "/images/logo.jpg?raw=true" # your photo (or logo) here
 description: > # your text below (remove <br> elements if you don't need line breaks)
   A new transform for visualizing fold change datasets.
-  <br><br>
-  Currently a postdoctoral fellow at the School of Data Science in the University of Virginia. My research focuses on novel visualizations for bioinformatics data and developing an alternative to null hypothesis significance test p-vales for analyzing controlled experiments.
   <br><br>
   <a href="https://github.com/bacorliss/mirrored_axis_distortion">Github Repostiory</a> 
   <br> <br>
