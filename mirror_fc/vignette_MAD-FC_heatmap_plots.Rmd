@@ -68,7 +68,7 @@ source(paste0(dirname(getwd()), "/R/mirrored_axis_distortion.R"))
 We processing the data with the following steps:
 
 1. Loading the UbiLength dataset.
-2. Analyze dataset with Differential Enrichment analysis of Proteomics data from standard workflow in DEP package.
+2. Analyze dataset with Differential Enrichment analysis of Proteomics data (standard workflow in DEP package).
 3. Plot data in default heatmap that identifies interesting genes.
 4. Extract which sub group of genes and their order from the plot.
 
